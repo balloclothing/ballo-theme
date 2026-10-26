@@ -182,9 +182,10 @@
             <div class="option-group" data-option-group="{{ forloop.index0 }}">
               <div class="option-group__header">
                 <p class="option-group__label" id="{{ option_label_id }}">
-                  {{ option.name }}
+                  {{- option.name -}}
                   {%- if forloop.index0 == color_index -%}
-                    : <span class="option-group__value" data-selected-value>{{ option.selected_value }}</span>
+                    <span aria-hidden="true">:</span>
+                    <span class="option-group__value" data-selected-value>{{ option.selected_value }}</span>
                   {%- endif -%}
                 </p>
                 {%- if forloop.index0 == size_index -%}
@@ -471,6 +472,7 @@
   }
 
   .option-group__value {
+    margin-inline-start: 0.4em;
     color: var(--color-text-secondary);
   }
 

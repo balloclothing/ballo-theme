@@ -31,6 +31,7 @@
         "paramo": {
           "type": "line",
           "settings": {
+            "product": "paramo-260",
             "name": "Páramo",
             "description": "Algodón 100% de 260 g/m². Más cuerpo y una caída firme.",
             "link_label": "",
@@ -44,6 +45,7 @@
         "valle": {
           "type": "line",
           "settings": {
+            "product": "valle-210",
             "name": "Valle",
             "description": "Algodón 100% de 210 g/m². Más ligera y fresca, para el calor y el día a día.",
             "link_label": "",
@@ -69,7 +71,7 @@
         "background": "background",
         "eyebrow": "Esenciales",
         "heading": "Las de todos los días.",
-        "collection": "",
+        "collection": "camisetas",
         "card_per_color": true,
         "show_filters": true,
         "max_cards": 12,
