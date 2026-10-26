@@ -11,10 +11,34 @@
   "sections": {
     "main": {
       "type": "product",
-      "settings": {}
+      "blocks": {
+        "weight": {
+          "type": "weight",
+          "settings": { "title": "Ficha del peso", "open": true }
+        },
+        "care": {
+          "type": "text",
+          "settings": {
+            "title": "Composición y cuidado",
+            "content": "<p>Algodón 100%.</p><p>Instrucciones de cuidado: [por completar].</p>",
+            "open": false
+          }
+        },
+        "shipping": {
+          "type": "text",
+          "settings": {
+            "title": "Envíos y cambios",
+            "content": "<p>Envío a todo Colombia. Cambios en 30 días.</p><p>Consulta los detalles en nuestra política de envíos y de cambios.</p>",
+            "open": false
+          }
+        }
+      },
+      "block_order": ["weight", "care", "shipping"],
+      "settings": {
+        "price_note": "IVA incluido",
+        "size_guide_page": "guia-de-tallas"
+      }
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["main"]
 }

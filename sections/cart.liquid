@@ -1,37 +1,62 @@
-{% comment %}
-  This section is used in the cart template to render /cart page with an
-  overview of the items in customer's cart.
+<div class="cart-page container">
+  <h1 class="cart-page__title">{{ 'cart.title' | t }}</h1>
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/cart
-{% endcomment %}
+  <cart-items data-section="{{ section.id }}"
+    data-updated="{{ 'cart.updated' | t }}"
+    data-removed="{{ 'cart.removed' | t }}"
+  >
+    <div data-cart-content>
+      {% render 'cart-contents', context: 'page' %}
+    </div>
+    <p class="visually-hidden" role="status" data-cart-status></p>
+  </cart-items>
+</div>
 
-<h1>{{ 'cart.title' | t }}</h1>
+{% stylesheet %}
+  .cart-page {
+    padding-block: clamp(32px, 5vw, 64px) clamp(64px, 8vw, 120px);
+  }
 
-<form action="{{ routes.cart_url }}" method="post">
-  <table>
-    {% for item in cart.items %}
-      <tr>
-        <td>
-          {% render 'image', image: item.image, url: item.url %}
-        </td>
-        <td>
-          <p>{{ item.product.title }}</p>
-          {{ 'cart.remove' | t | link_to: item.url_to_remove }}
-        </td>
-        <td>
-          <input type="text" name="updates[]" value="{{ item.quantity }}">
-          <input type="submit" value="{{ 'cart.update' | t }}">
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
+  .cart-page__title {
+    margin-bottom: clamp(24px, 4vw, 40px);
+  }
 
-  <input type="submit" name="checkout" value="{{ 'cart.checkout' | t }}">
-</form>
+  @media (min-width: 990px) {
+    .cart--page:has(.cart__items) {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(320px, 4fr);
+      grid-template-areas:
+        'shipping footer'
+        'items footer';
+      align-items: start;
+      gap: 0 clamp(40px, 5vw, 80px);
+    }
+
+    .cart--page .cart__shipping {
+      grid-area: shipping;
+    }
+
+    .cart--page .cart__form {
+      grid-area: items;
+    }
+
+    .cart-page .cart--page .cart__footer {
+      grid-area: footer;
+      position: sticky;
+      top: calc(var(--header-height) + 24px);
+      padding: 24px;
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius);
+      background-color: var(--color-card);
+    }
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:general.cart",
+  "name": "Carrito",
+  "tag": "section",
+  "class": "section-cart",
   "settings": []
 }
 {% endschema %}

@@ -16,7 +16,9 @@
     "cart_count": {
       "one": "Carrito, {{ count }} producto",
       "other": "Carrito, {{ count }} productos"
-    }
+    },
+    "cart_label_one": "Carrito, [count] producto",
+    "cart_label_other": "Carrito, [count] productos"
   },
   "footer": {
     "terms": "Términos",
@@ -46,7 +48,20 @@
     "checkout": "Finalizar compra",
     "title": "Carrito",
     "update": "Actualizar",
-    "remove": "Eliminar"
+    "remove": "Eliminar",
+    "empty": "Tu carrito está vacío.",
+    "continue_shopping": "Ver camisetas",
+    "free_shipping_remaining_html": "Te faltan <strong>{{ amount }}</strong> para el envío gratis.",
+    "free_shipping_reached": "Tienes envío gratis.",
+    "free_shipping_progress": "Progreso hacia el envío gratis",
+    "decrease": "Quitar una unidad de {{ product }}",
+    "increase": "Agregar una unidad de {{ product }}",
+    "quantity_for": "Cantidad de {{ product }}",
+    "subtotal": "Subtotal",
+    "taxes_note": "Impuestos incluidos. El envío se calcula al pagar.",
+    "view_cart": "Ver carrito",
+    "updated": "Se actualizó la cantidad de [product].",
+    "removed": "Se eliminó [product] del carrito."
   },
   "customers": {
     "login": {
@@ -100,5 +115,20 @@
     "all": "Todas",
     "status_one": "Mostrando 1 camiseta",
     "status_other": "Mostrando [count] camisetas"
+  },
+  "general": {
+    "close": "Cerrar"
+  },
+  "product": {
+    "gallery": "Galería de imágenes",
+    "weight_label": "Peso del algodón",
+    "size_guide": "Guía de tallas",
+    "size_guide_missing": "Crea una página llamada «Guía de tallas» y elígela en la ficha de producto del editor de temas.",
+    "unavailable": "agotada",
+    "unavailable_variant": "No disponible",
+    "add_to_cart": "Añadir al carrito",
+    "add_to_cart_size": "Añadir al carrito · Talla {{ size }}",
+    "sold_out": "Agotado",
+    "add_error": "No pudimos añadir el producto. Inténtalo de nuevo."
   }
 }

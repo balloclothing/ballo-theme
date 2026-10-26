@@ -1,0 +1,27 @@
+<cart-drawer>
+  <dialog id="CartDrawer" class="drawer drawer--right cart-drawer" aria-labelledby="CartDrawerTitle" scroll-lock>
+    <div class="drawer__header">
+      <h2 class="drawer__title" id="CartDrawerTitle">{{ 'cart.title' | t }}</h2>
+      <button type="button" class="icon-button" data-drawer-close aria-label="{{ 'general.close' | t }}">
+        {% render 'icon', name: 'close' %}
+      </button>
+    </div>
+
+    <cart-items class="drawer__body cart-drawer__body" data-section="{{ section.id }}"
+    data-updated="{{ 'cart.updated' | t }}"
+    data-removed="{{ 'cart.removed' | t }}"
+  >
+      <div data-cart-content>
+        {% render 'cart-contents', context: 'drawer' %}
+      </div>
+      <p class="visually-hidden" role="status" data-cart-status></p>
+    </cart-items>
+  </dialog>
+</cart-drawer>
+
+{% schema %}
+{
+  "name": "Carrito lateral",
+  "settings": []
+}
+{% endschema %}

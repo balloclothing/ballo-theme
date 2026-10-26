@@ -100,6 +100,8 @@
         href="{{ routes.cart_url }}"
         id="HeaderCartLink"
         aria-label="{{ 'header.cart_count' | t: count: cart.item_count }}"
+        data-label-one="{{ 'header.cart_label_one' | t }}"
+        data-label-other="{{ 'header.cart_label_other' | t }}"
       >
         {% render 'icon', name: 'bag' %}
         <span class="cart-count" data-cart-count {% if cart.item_count == 0 %}hidden{% endif %} aria-hidden="true">

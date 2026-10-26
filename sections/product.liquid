@@ -1,52 +1,778 @@
-{% comment %}
-  This section is used in the product template to render product page with
-  media, content, and add-to-cart form.
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign fields = product.metafields.custom
+  assign sibling = fields.producto_hermano.value
+  assign line_name = product.title | split: ' ' | first
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/product
-{% endcomment %}
+  assign color_index = -1
+  assign size_index = -1
+  for option in product.options_with_values
+    assign option_name = option.name | downcase
+    if option_name == 'color' or option_name == 'colour'
+      assign color_index = forloop.index0
+      assign color_option = option
+    elsif option_name == 'talla' or option_name == 'size' or option_name == 'tamaño'
+      assign size_index = forloop.index0
+    endif
+  endfor
 
-<div class="product-images">
-  {% for image in product.images %}
-    {% render 'image', class: 'product-image', image: image %}
-  {% endfor %}
-</div>
+  assign selected_color = ''
+  if color_index >= 0
+    assign selected_color = current_variant.options[color_index]
+  endif
+  assign selected_size = ''
+  if size_index >= 0
+    assign selected_size = current_variant.options[size_index]
+  endif
 
-<div class="product-info">
-  <h1>{{ product.title }}</h1>
-  <p>{{ product.price | money }}</p>
-  <p>{{ product.description }}</p>
-</div>
+  assign display_title = product.title
+  if selected_color != ''
+    assign display_title = product.title | append: ' — ' | append: selected_color
+  endif
 
-<div class="product-form">
-  {% form 'product', product %}
-    {% assign current_variant = product.selected_or_first_available_variant %}
+  # Gallery: photos whose alt text contains a color name belong to that color.
+  # Only the selected color's photos are shown; photos without a color are always shown.
+  assign selected_color_down = selected_color | downcase
+  assign has_color_media = false
+  for media in product.media
+    assign media_alt = media.alt | downcase
+    if selected_color_down != '' and media_alt contains selected_color_down
+      assign has_color_media = true
+      break
+    endif
+  endfor
 
-    <select name="id">
-      {% for variant in product.variants %}
-        <option
-          value="{{ variant.id }}"
-          {% if variant == current_variant %}
-            selected="selected"
-          {% endif %}
-        >
-          {{ variant.title }} - {{ variant.price | money }}
-        </option>
-      {% endfor %}
-    </select>
+  assign size_guide_page = section.settings.size_guide_page
+  assign form_id = 'ProductForm-' | append: section.id
+-%}
 
-    <input type="text" name="quantity" min="1" value="1">
+<product-info class="product full-width" data-section="{{ section.id }}">
+  <div class="product__inner container">
+    <div class="product__gallery" aria-label="{{ 'product.gallery' | t }}" role="region">
+      <ul class="product-gallery" role="list" data-gallery>
+        {%- assign first_visible_done = false -%}
+        {%- for media in product.media -%}
+          {%- liquid
+            assign media_color = ''
+            assign media_alt = media.alt | downcase
+            if color_option
+              for value in color_option.values
+                assign value_down = value.name | downcase
+                if media_alt contains value_down
+                  assign media_color = value.name
+                  break
+                endif
+              endfor
+            endif
 
-    <input type="submit" value="Add to cart">
-    {{ form | payment_button }}
-  {% endform %}
-</div>
+            assign is_hidden = false
+            if has_color_media and media_color != '' and media_color != selected_color
+              assign is_hidden = true
+            endif
+
+            assign media_loading = 'lazy'
+            assign media_priority = 'auto'
+            if is_hidden == false and first_visible_done == false
+              assign media_loading = 'eager'
+              assign media_priority = 'high'
+              assign first_visible_done = true
+            endif
+          -%}
+          <li
+            class="product-gallery__item"
+            data-color="{{ media_color | escape }}"
+            {% if is_hidden %}
+              hidden
+            {% endif %}
+          >
+            {%- if media.media_type == 'image' -%}
+              {{
+                media
+                | image_url: width: 1400
+                | image_tag:
+                  widths: '400, 600, 800, 1000, 1200, 1400',
+                  sizes: '(min-width: 990px) calc((min(100vw, 1360px) - 80px) * 0.3), 86vw',
+                  loading: media_loading,
+                  fetchpriority: media_priority,
+                  class: 'product-gallery__image'
+              }}
+            {%- else -%}
+              {{ media | media_tag: image_size: '1400x' }}
+            {%- endif -%}
+          </li>
+        {%- else -%}
+          <li class="product-gallery__item">
+            {{ 'product-apparel-1' | placeholder_svg_tag: 'product-gallery__image product-gallery__placeholder' }}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <div class="product__info">
+      <div class="product-info">
+        {%- if fields.subtitulo_linea != blank -%}
+          <p class="eyebrow">{{ fields.subtitulo_linea.value }}</p>
+        {%- endif -%}
+
+        <h1 class="product-info__title" data-product-title>{{ display_title }}</h1>
+
+        <p class="product-info__price">
+          <span data-price>{{ current_variant.price | money }}</span>
+          <s class="product-info__compare" data-compare-price {% unless current_variant.compare_at_price > current_variant.price %}hidden{% endunless %}>
+            {{- current_variant.compare_at_price | money -}}
+          </s>
+          {%- if section.settings.price_note != blank -%}
+            <span class="product-info__tax">{{ section.settings.price_note }}</span>
+          {%- endif -%}
+        </p>
+
+        {%- if sibling -%}
+          {%- liquid
+            assign own_weight = fields.gramaje.value | default: 0
+            assign sibling_weight = sibling.metafields.custom.gramaje.value | default: 0
+            assign sibling_name = sibling.title | split: ' ' | first
+            assign own_first = true
+            if sibling_weight > own_weight
+              assign own_first = false
+            endif
+          -%}
+          <div class="option-group">
+            <p class="option-group__label" id="{{ section.id }}-weight-label">{{ 'product.weight_label' | t }}</p>
+            <div class="weight-selector" role="group" aria-labelledby="{{ section.id }}-weight-label">
+              {%- capture own_option -%}
+                <a class="weight-option" href="{{ current_variant.url }}" aria-current="page">
+                  <span class="weight-option__number">{{ own_weight }} g</span>
+                  <span class="weight-option__name">{{ line_name }}</span>
+                </a>
+              {%- endcapture -%}
+              {%- capture sibling_option -%}
+                <a class="weight-option" href="{{ sibling.url }}" data-sibling-link>
+                  <span class="weight-option__number">{{ sibling_weight }} g</span>
+                  <span class="weight-option__name">{{ sibling_name }}</span>
+                </a>
+              {%- endcapture -%}
+              {%- if own_first -%}
+                {{ own_option }}{{ sibling_option }}
+              {%- else -%}
+                {{ sibling_option }}{{ own_option }}
+              {%- endif -%}
+            </div>
+            {%- if fields.nota_talla != blank -%}
+              <p class="option-group__note">{{ fields.nota_talla.value }}</p>
+            {%- endif -%}
+
+            <script type="application/json" data-sibling-json>
+              {
+                "url": {{ sibling.url | json }},
+                "options": {{ sibling.options | json }},
+                "variants": [
+                  {%- for v in sibling.variants -%}
+                    { "options": {{ v.options | json }}, "available": {{ v.available | json }}, "url": {{ v.url | json }} }
+                    {%- unless forloop.last %},{% endunless -%}
+                  {%- endfor -%}
+                ]
+              }
+            </script>
+          </div>
+        {%- endif -%}
+
+        {%- unless product.has_only_default_variant -%}
+          {%- for option in product.options_with_values -%}
+            {%- assign option_label_id = section.id | append: '-option-' | append: forloop.index0 -%}
+            <div class="option-group" data-option-group="{{ forloop.index0 }}">
+              <div class="option-group__header">
+                <p class="option-group__label" id="{{ option_label_id }}">
+                  {{ option.name }}
+                  {%- if forloop.index0 == color_index -%}
+                    : <span class="option-group__value" data-selected-value>{{ option.selected_value }}</span>
+                  {%- endif -%}
+                </p>
+                {%- if forloop.index0 == size_index -%}
+                  <button
+                    type="button"
+                    class="option-group__link"
+                    aria-controls="SizeGuide-{{ section.id }}"
+                    aria-expanded="false"
+                  >
+                    {{- 'product.size_guide' | t -}}
+                  </button>
+                {%- endif -%}
+              </div>
+
+              <div
+                class="option-values{% if forloop.index0 == color_index %} option-values--color{% endif %}"
+                role="group"
+                aria-labelledby="{{ option_label_id }}"
+              >
+                {%- for value in option.values -%}
+                  {%- if forloop.parentloop.index0 == color_index -%}
+                    <button
+                      type="button"
+                      class="color-option"
+                      data-value="{{ value.name | escape }}"
+                      aria-pressed="{% if value.selected %}true{% else %}false{% endif %}"
+                      style="--swatch: {% render 'swatch-color', value: value %};"
+                    >
+                      <span class="visually-hidden">{{ value.name }}</span>
+                    </button>
+                  {%- else -%}
+                    <button
+                      type="button"
+                      class="size-option"
+                      data-value="{{ value.name | escape }}"
+                      aria-pressed="{% if value.selected %}true{% else %}false{% endif %}"
+                      {% unless value.available %}
+                        data-unavailable
+                      {% endunless %}
+                    >
+                      {{- value.name -}}
+                      <span class="visually-hidden" data-unavailable-label {% if value.available %}hidden{% endif %}>
+                        ({{ 'product.unavailable' | t }})
+                      </span>
+                    </button>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        {%- endunless -%}
+
+        {%- form 'product', product, id: form_id, class: 'product-form' -%}
+          <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+          <button
+            type="submit"
+            name="add"
+            class="button product-form__submit"
+            data-add-button
+            {% unless current_variant.available %}
+              disabled
+            {% endunless %}
+          >
+            <span data-add-label>
+              {%- if current_variant.available -%}
+                {%- if selected_size != '' -%}
+                  {{ 'product.add_to_cart_size' | t: size: selected_size }}
+                {%- else -%}
+                  {{ 'product.add_to_cart' | t }}
+                {%- endif -%}
+              {%- else -%}
+                {{ 'product.sold_out' | t }}
+              {%- endif -%}
+            </span>
+          </button>
+          <p class="form-message form-message--error" role="alert" data-form-error hidden></p>
+        {%- endform -%}
+
+        {%- if section.blocks.size > 0 -%}
+          <div class="accordions">
+            {%- for block in section.blocks -%}
+              <details class="accordion" {% if block.settings.open %}open{% endif %} {{ block.shopify_attributes }}>
+                <summary class="accordion__summary">
+                  <span>{{ block.settings.title }}</span>
+                  {% render 'icon', name: 'chevron-down', class: 'accordion__icon' %}
+                </summary>
+                <div class="accordion__content">
+                  {%- case block.type -%}
+                    {%- when 'weight' -%}
+                      {%- if product.description != blank -%}
+                        <div class="rte text-secondary">{{ product.description }}</div>
+                      {%- endif -%}
+                      {%- if fields.gramaje != blank -%}
+                        <p class="accordion__weight">
+                          <span class="accordion__weight-number">{{ fields.gramaje.value }}</span>
+                          <span class="label">{{ 'weight_index.unit' | t }}</span>
+                        </p>
+                      {%- endif -%}
+                      {%- if fields.grosor != blank or fields.estructura != blank or fields.frescura != blank -%}
+                        {% render 'weight-bars',
+                          grosor: fields.grosor.value,
+                          estructura: fields.estructura.value,
+                          frescura: fields.frescura.value
+                        %}
+                      {%- endif -%}
+                    {%- when 'text' -%}
+                      <div class="rte text-secondary">{{ block.settings.content }}</div>
+                  {%- endcase -%}
+                </div>
+              </details>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-product-json>
+    {
+      "colorIndex": {{ color_index }},
+      "sizeIndex": {{ size_index }},
+      "options": {{ product.options | json }},
+      "variants": [
+        {%- for v in product.variants -%}
+          {
+            "id": {{ v.id }},
+            "options": {{ v.options | json }},
+            "available": {{ v.available | json }},
+            "price": {{ v.price | money | json }},
+            "compare": {% if v.compare_at_price > v.price %}{{ v.compare_at_price | money | json }}{% else %}null{% endif %},
+            "url": {{ v.url | json }}
+          }
+          {%- unless forloop.last %},{% endunless -%}
+        {%- endfor -%}
+      ],
+      "strings": {
+        "addToCart": {{ 'product.add_to_cart' | t | json }},
+        "addToCartSize": {{ 'product.add_to_cart_size' | t: size: '[size]' | json }},
+        "soldOut": {{ 'product.sold_out' | t | json }},
+        "unavailable": {{ 'product.unavailable_variant' | t | json }},
+        "error": {{ 'product.add_error' | t | json }}
+      }
+    }
+  </script>
+</product-info>
+
+{%- if size_index >= 0 -%}
+  <side-drawer>
+    <dialog
+      id="SizeGuide-{{ section.id }}"
+      class="drawer drawer--right"
+      aria-labelledby="SizeGuideTitle-{{ section.id }}"
+      scroll-lock
+    >
+      <div class="drawer__header">
+        <h2 class="drawer__title" id="SizeGuideTitle-{{ section.id }}">
+          {%- if size_guide_page != blank -%}
+            {{- size_guide_page.title -}}
+          {%- else -%}
+            {{- 'product.size_guide' | t -}}
+          {%- endif -%}
+        </h2>
+        <button type="button" class="icon-button" data-drawer-close aria-label="{{ 'general.close' | t }}">
+          {% render 'icon', name: 'close' %}
+        </button>
+      </div>
+      <div class="drawer__body rte">
+        {%- if size_guide_page != blank -%}
+          {{ size_guide_page.content }}
+        {%- else -%}
+          <p class="text-secondary">{{ 'product.size_guide_missing' | t }}</p>
+        {%- endif -%}
+      </div>
+    </dialog>
+  </side-drawer>
+{%- endif -%}
+
+{% stylesheet %}
+  .product__inner {
+    display: grid;
+    gap: 32px;
+    padding-block: 16px clamp(48px, 7vw, 96px);
+  }
+
+  /* Gallery: swipeable carousel on mobile, 2 x 2 grid on desktop */
+  .product__gallery {
+    min-width: 0;
+    margin-inline: calc(var(--page-margin) * -1);
+  }
+
+  .product-gallery {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 0 var(--page-margin);
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--page-margin);
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+
+  .product-gallery::-webkit-scrollbar {
+    display: none;
+  }
+
+  .product-gallery__item {
+    flex: 0 0 86%;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background-color: var(--color-surface);
+    scroll-snap-align: start;
+  }
+
+  .product-gallery__item[hidden] {
+    display: none;
+  }
+
+  .product-gallery__image,
+  .product-gallery__item video,
+  .product-gallery__item iframe {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-gallery__placeholder {
+    fill: var(--color-border);
+  }
+
+  .product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .product-info__title {
+    font-size: clamp(2rem, 1.6rem + 1.6vw, 2.75rem);
+    font-weight: 300;
+  }
+
+  .product-info__price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 12px;
+    font-size: 1.125rem;
+  }
+
+  .product-info__compare {
+    color: var(--color-text-secondary);
+  }
+
+  .product-info__tax {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  /* Option groups */
+  .option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .option-group__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .option-group__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .option-group__value {
+    color: var(--color-text-secondary);
+  }
+
+  .option-group__note {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  .option-group__link {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    cursor: pointer;
+  }
+
+  /* Weight selector */
+  .weight-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .weight-option {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 72px;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-card);
+    text-decoration: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .weight-option:hover {
+    border-color: var(--color-ink);
+  }
+
+  .weight-option[aria-current='page'] {
+    border-color: var(--color-ink);
+    background-color: var(--color-ink);
+    color: var(--color-background);
+  }
+
+  .weight-option__number {
+    font-family: var(--font-heading--family);
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .weight-option__name {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* Color and size options */
+  .option-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .option-values--color {
+    gap: 6px;
+  }
+
+  .color-option {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+  }
+
+  .color-option::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: var(--swatch, var(--color-border));
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+  }
+
+  .color-option::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+  }
+
+  .color-option:hover::after {
+    border-color: var(--color-border);
+  }
+
+  .color-option[aria-pressed='true']::after {
+    border-color: var(--color-ink);
+  }
+
+  .size-option {
+    min-width: 56px;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-card);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .size-option:hover {
+    border-color: var(--color-ink);
+  }
+
+  .size-option[aria-pressed='true'] {
+    border-color: var(--color-ink);
+    background-color: var(--color-ink);
+    color: var(--color-background);
+  }
+
+  .size-option[data-unavailable] {
+    color: var(--color-text-secondary);
+    text-decoration: line-through;
+  }
+
+  .product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 4px;
+  }
+
+  .product-form__submit {
+    width: 100%;
+    min-height: 56px;
+  }
+
+  /* Accordions */
+  .accordions {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .accordion {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .accordion__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .accordion__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .accordion__icon {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s ease;
+  }
+
+  .accordion[open] .accordion__icon {
+    transform: rotate(180deg);
+  }
+
+  .accordion__content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 24px;
+    font-size: 0.9375rem;
+  }
+
+  .accordion__weight {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    color: var(--color-accent);
+  }
+
+  .accordion__weight-number {
+    font-family: var(--font-heading--family);
+    font-size: 3rem;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  @media (min-width: 990px) {
+    .product__inner {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: start;
+      gap: clamp(40px, 5vw, 80px);
+      padding-top: 32px;
+    }
+
+    .product__gallery {
+      margin-inline: 0;
+    }
+
+    .product-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 0;
+      overflow: visible;
+    }
+
+    .product__info {
+      position: sticky;
+      top: calc(var(--header-height) + 24px);
+    }
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:general.product",
-  "settings": [],
-  "disabled_on": {
-    "groups": ["header", "footer"]
-  }
+  "name": "Ficha de producto",
+  "tag": "section",
+  "class": "section-product",
+  "settings": [
+    {
+      "type": "text",
+      "id": "price_note",
+      "label": "Texto junto al precio",
+      "info": "Asegúrate de que coincida con tu configuración de impuestos (Configuración › Impuestos: «Incluir impuestos en los precios»).",
+      "default": "IVA incluido"
+    },
+    {
+      "type": "page",
+      "id": "size_guide_page",
+      "label": "Página de la guía de tallas",
+      "info": "Su contenido se muestra en el panel lateral «Guía de tallas»."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "weight",
+      "name": "Acordeón: ficha del peso",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Muestra la descripción del producto, el gramaje y las barras de Grosor, Estructura y Frescura (metacampos del producto)."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título",
+          "default": "Ficha del peso"
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Abierto por defecto",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Acordeón: texto",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título",
+          "default": "Composición y cuidado"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Contenido",
+          "default": "<p>Algodón 100%.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Abierto por defecto",
+          "default": false
+        }
+      ]
+    }
+  ]
 }
 {% endschema %}

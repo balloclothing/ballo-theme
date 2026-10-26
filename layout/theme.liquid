@@ -20,7 +20,7 @@
     {{ content_for_header }}
   </head>
 
-  <body>
+  <body class="template-{{ template.name }}">
     <a class="skip-link" href="#MainContent">{{ 'accessibility.skip_to_content' | t }}</a>
 
     {% sections 'header-group' %}
@@ -30,5 +30,9 @@
     </main>
 
     {% sections 'footer-group' %}
+
+    {%- unless template.name == 'cart' -%}
+      {% section 'cart-drawer' %}
+    {%- endunless -%}
   </body>
 </html>
