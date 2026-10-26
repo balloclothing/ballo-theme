@@ -560,3 +560,258 @@
   pointer-events: none;
   transition: opacity 0.2s ease;
 }
+
+/** Facets (filters and sort) */
+.facets {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: clamp(28px, 4vw, 40px);
+}
+
+.facets__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.facets__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.facet {
+  position: relative;
+}
+
+.facet__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px 0 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.facet__summary::-webkit-details-marker {
+  display: none;
+}
+
+.facet__summary:hover,
+.facet[open] > .facet__summary,
+.facet__summary--active {
+  border-color: var(--color-ink);
+}
+
+.facet__icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.facet[open] .facet__icon {
+  transform: rotate(180deg);
+}
+
+.facet__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 5;
+  min-width: 240px;
+  max-width: calc(100vw - var(--page-margin) * 2);
+  max-height: 360px;
+  padding: 12px 16px;
+  overflow-y: auto;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  background-color: var(--color-card);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.08);
+}
+
+.facet fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.facet__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.facet-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.facet-option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-ink);
+}
+
+.facet-option:has(input:disabled) {
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.facet-option__swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--swatch, var(--color-border));
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+}
+
+.facet-option__count {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.facet__price {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  min-width: 260px;
+}
+
+.facets__sort {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.facets__select {
+  min-height: 44px;
+  padding: 0 40px 0 14px;
+  border: 1px solid var(--color-field-border);
+  background-color: var(--color-card);
+}
+
+.facets__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.facets__results-count {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.facets__active {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.active-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px 0 16px;
+  border-radius: var(--radius);
+  background-color: var(--color-surface);
+  font-size: 0.8125rem;
+  text-decoration: none;
+}
+
+.active-filter:hover {
+  text-decoration: underline;
+}
+
+.active-filter__icon {
+  width: 14px;
+  height: 14px;
+}
+
+.facets__clear {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.8125rem;
+}
+
+[data-facets-results][aria-busy='true'] {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+@media (max-width: 749px) {
+  .facet {
+    position: static;
+  }
+
+  .facets__filters {
+    position: relative;
+  }
+
+  .facet__panel {
+    right: 0;
+    min-width: 0;
+  }
+
+  .facets__sort {
+    width: 100%;
+  }
+}
+
+/** Pagination */
+.pagination {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+.pagination__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pagination__item {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+a.pagination__item:hover {
+  background-color: var(--color-surface);
+}
+
+.pagination__item--current {
+  background-color: var(--color-ink);
+  color: var(--color-background);
+}

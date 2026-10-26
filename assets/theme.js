@@ -430,3 +430,117 @@ class ProductInfo extends HTMLElement {
 }
 
 if (!customElements.get('product-info')) customElements.define('product-info', ProductInfo);
+
+/**
+ * Storefront filters and sort. Changes re-render the section through the Section Rendering API
+ * so the page doesn't reload; the URL is updated so results can be shared and the back button works.
+ */
+const Facets = {
+  async render(url, sectionId, { push = true } = {}) {
+    const section = document.getElementById(`shopify-section-${sectionId}`);
+    if (!section) return;
+
+    const openIds = [...section.querySelectorAll('details[open]')].map((details) => details.id);
+    const focusedId = document.activeElement?.id;
+    section.querySelector('[data-facets-results]')?.setAttribute('aria-busy', 'true');
+
+    const fetchUrl = new URL(url, window.location.origin);
+    fetchUrl.searchParams.set('section_id', sectionId);
+
+    try {
+      const response = await fetch(fetchUrl);
+      const html = await response.text();
+      const fresh = new DOMParser().parseFromString(html, 'text/html').getElementById(`shopify-section-${sectionId}`);
+      if (!fresh) throw new Error('Missing section');
+      section.innerHTML = fresh.innerHTML;
+    } catch (error) {
+      window.location.href = url;
+      return;
+    }
+
+    openIds.forEach((id) => document.getElementById(id)?.setAttribute('open', ''));
+    if (focusedId) document.getElementById(focusedId)?.focus();
+    if (push) window.history.pushState({ facets: sectionId }, '', url);
+  },
+};
+
+class FacetFilters extends HTMLElement {
+  connectedCallback() {
+    this.form = this.querySelector('form');
+    if (!this.form) return;
+
+    this.form.addEventListener('change', (event) => {
+      // Price fields wait until the shopper stops typing.
+      const delay = event.target.type === 'number' ? 600 : 0;
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => this.submit(), delay);
+    });
+
+    this.form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      this.submit();
+    });
+
+    this.addEventListener('click', (event) => {
+      const link = event.target.closest('[data-facet-link]');
+      if (!link) return;
+      event.preventDefault();
+      Facets.render(link.href, this.dataset.section);
+    });
+
+    // Close open filter panels on outside click or Escape.
+    this.onDocumentClick = (event) => {
+      this.querySelectorAll('details[open]').forEach((details) => {
+        if (!details.contains(event.target)) details.removeAttribute('open');
+      });
+    };
+    this.onKeydown = (event) => {
+      if (event.key !== 'Escape') return;
+      const open = this.querySelector('details[open]');
+      if (!open) return;
+      open.removeAttribute('open');
+      open.querySelector('summary')?.focus();
+    };
+    document.addEventListener('click', this.onDocumentClick);
+    document.addEventListener('keydown', this.onKeydown);
+  }
+
+  disconnectedCallback() {
+    document.removeEventListener('click', this.onDocumentClick);
+    document.removeEventListener('keydown', this.onKeydown);
+  }
+
+  submit() {
+    const params = new URLSearchParams();
+    for (const [name, value] of new FormData(this.form)) {
+      if (value !== '') params.append(name, value);
+    }
+    const url = `${this.form.getAttribute('action')}?${params.toString()}`;
+    Facets.render(url, this.dataset.section);
+  }
+}
+
+if (!customElements.get('facet-filters')) customElements.define('facet-filters', FacetFilters);
+
+window.addEventListener('popstate', (event) => {
+  if (event.state?.facets) Facets.render(window.location.href, event.state.facets, { push: false });
+});
+
+// Lets the first page in the history entry be restored after filtering.
+const initialFacets = document.querySelector('facet-filters');
+if (initialFacets && !window.history.state?.facets) {
+  window.history.replaceState({ facets: initialFacets.dataset.section }, '', window.location.href);
+}
+
+/**
+ * Several customer forms can share a page (newsletter and waitlist). After a submission Shopify
+ * reloads the page with the submitted form's id in the URL hash; only that form keeps its message.
+ */
+if (window.location.search.includes('customer_posted') || window.location.search.includes('contact_posted')) {
+  const postedId = decodeURIComponent(window.location.hash.slice(1));
+  if (postedId) {
+    document.querySelectorAll('[data-form-message]').forEach((message) => {
+      if (message.dataset.formMessage !== postedId) message.hidden = true;
+    });
+  }
+}

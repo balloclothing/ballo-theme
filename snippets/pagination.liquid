@@ -1,0 +1,37 @@
+{% doc %}
+  Page navigation for paginated results.
+
+  @param {object} paginate - The paginate object
+
+  @example
+  {% render 'pagination', paginate: paginate %}
+{% enddoc %}
+<nav class="pagination" aria-label="{{ 'pagination.label' | t }}">
+  <ul class="pagination__list" role="list">
+    {%- if paginate.previous -%}
+      <li>
+        <a class="pagination__item" href="{{ paginate.previous.url }}" aria-label="{{ 'pagination.previous' | t }}">←</a>
+      </li>
+    {%- endif -%}
+
+    {%- for part in paginate.parts -%}
+      <li>
+        {%- if part.is_link -%}
+          <a class="pagination__item" href="{{ part.url }}" aria-label="{{ 'pagination.page' | t: number: part.title }}">
+            {{- part.title -}}
+          </a>
+        {%- elsif part.title == paginate.current_page -%}
+          <span class="pagination__item pagination__item--current" aria-current="page">{{ part.title }}</span>
+        {%- else -%}
+          <span class="pagination__item">{{ part.title }}</span>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+
+    {%- if paginate.next -%}
+      <li>
+        <a class="pagination__item" href="{{ paginate.next.url }}" aria-label="{{ 'pagination.next' | t }}">→</a>
+      </li>
+    {%- endif -%}
+  </ul>
+</nav>

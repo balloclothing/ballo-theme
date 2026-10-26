@@ -435,3 +435,29 @@ a {
 .shopify-section > .full-width {
   grid-column: 1 / -1;
 }
+
+/* A .container already sets its own width and margins, so it takes the whole grid row. */
+.shopify-section > .container {
+  grid-column: 1 / -1;
+}
+
+/** Policy pages (rendered by Shopify) */
+.shopify-policy__container {
+  max-width: 760px !important;
+  margin-inline: auto;
+  padding: clamp(40px, 6vw, 88px) var(--page-margin) clamp(64px, 8vw, 120px) !important;
+}
+
+.shopify-policy__title {
+  margin-bottom: clamp(32px, 5vw, 48px);
+  text-align: left !important;
+}
+
+.shopify-policy__body {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.shopify-policy__body > * + * {
+  margin-block-start: 1em;
+}

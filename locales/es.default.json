@@ -1,8 +1,9 @@
 {
   "404": {
-    "title": "404",
+    "title": "Error 404",
     "not_found": "No encontramos esta página.",
-    "back_to_shopping": "Volver a la tienda"
+    "back_to_shopping": "Ver camisetas",
+    "home": "Ir al inicio"
   },
   "accessibility": {
     "skip_to_content": "Saltar al contenido"
@@ -88,10 +89,12 @@
   },
   "search": {
     "title": "Buscar",
-    "placeholder": "Buscar camisetas, páginas o artículos",
+    "placeholder": "Busca camisetas, colores o páginas",
     "submit": "Buscar",
     "no_results_html": "No encontramos resultados para {{ terms }}",
-    "results_for_html": "{{ count }} resultados para {{ terms }}"
+    "results_for_html": "{{ count }} resultados para {{ terms }}",
+    "label": "Buscar en la tienda",
+    "pages": "Páginas"
   },
   "weight_bars": {
     "grosor": "Grosor",
@@ -130,5 +133,27 @@
     "add_to_cart_size": "Añadir al carrito · Talla {{ size }}",
     "sold_out": "Agotado",
     "add_error": "No pudimos añadir el producto. Inténtalo de nuevo."
+  },
+  "collection": {
+    "empty": "No hay productos con estos filtros.",
+    "clear_all": "Borrar filtros"
+  },
+  "facets": {
+    "from": "Desde",
+    "to": "Hasta",
+    "sort_by": "Ordenar por",
+    "apply": "Aplicar",
+    "remove": "Quitar filtro",
+    "clear_all": "Borrar filtros",
+    "results_count": {
+      "one": "{{ count }} camiseta",
+      "other": "{{ count }} camisetas"
+    }
+  },
+  "pagination": {
+    "label": "Paginación",
+    "previous": "Página anterior",
+    "next": "Página siguiente",
+    "page": "Página {{ number }}"
   }
 }

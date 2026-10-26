@@ -46,9 +46,9 @@
               </div>
 
               {%- if form.posted_successfully? -%}
-                <p class="form-message" id="{{ form_id }}-message" role="status">{{ 'newsletter.success' | t }}</p>
+                <p class="form-message" id="{{ form_id }}-message" role="status" data-form-message="{{ form_id }}">{{ 'newsletter.success' | t }}</p>
               {%- elsif form.errors -%}
-                <p class="form-message form-message--error" id="{{ form_id }}-message" role="alert">
+                <p class="form-message form-message--error" id="{{ form_id }}-message" role="alert" data-form-message="{{ form_id }}">
                   {%- if form.errors.messages.email -%}
                     {{ 'newsletter.error_email' | t }}
                   {%- else -%}

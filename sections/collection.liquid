@@ -1,47 +1,166 @@
-{% comment %}
-  This section is used in the collection template to render collection page
-  listing all products within a collection.
+{%- liquid
+  assign card_per_color = section.settings.card_per_color
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
-{% endcomment %}
+  # Color values chosen in the filters: when present, only those color cards are shown.
+  assign active_colors = ''
+  for filter in collection.filters
+    assign filter_label = filter.label | downcase
+    if filter_label == 'color' or filter_label == 'colour'
+      for value in filter.active_values
+        assign active_colors = active_colors | append: '|' | append: value.label | append: '|'
+      endfor
+    endif
+  endfor
+-%}
 
-<h1>{{ collection.title }}</h1>
+<div class="collection-page container">
+  <header class="collection-page__header section-heading">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h1>{{ collection.title }}</h1>
+    {%- if section.settings.show_description and collection.description != blank -%}
+      <div class="rte text-secondary">{{ collection.description }}</div>
+    {%- endif -%}
+  </header>
 
-<div class="collection-products">
-  {% paginate collection.products by 20 %}
-    {% for product in collection.products %}
-      <div class="collection-product">
-        {% if product.featured_image %}
-          {% render 'image',
-            class: 'collection-product__image',
-            image: product.featured_image,
-            url: product.url,
-            width: 400,
-            height: 400,
-            crop: 'center'
-          %}
-        {% endif %}
-        <div class="collection-product__content">
-          <p>{{ product.title | escape | link_to: product.url }}</p>
-          <p>{{ product.price | money }}</p>
+  {%- paginate collection.products by section.settings.products_per_page -%}
+    {%- liquid
+      # With one card per color, the count shows the cards (colors) instead of the products.
+      assign card_count = collection.products_count
+      if card_per_color and paginate.pages == 1
+        assign card_count = 0
+        for product in collection.products
+          assign product_cards = 1
+          for option in product.options_with_values
+            assign option_name = option.name | downcase
+            if option_name == 'color' or option_name == 'colour'
+              assign product_cards = 0
+              for value in option.values
+                assign color_token = '|' | append: value.name | append: '|'
+                if active_colors == '' or active_colors contains color_token
+                  assign product_cards = product_cards | plus: 1
+                endif
+              endfor
+            endif
+          endfor
+          assign card_count = card_count | plus: product_cards
+        endfor
+      endif
+    -%}
+    {% render 'facets',
+      results: collection,
+      url: collection.url,
+      section_id: section.id,
+      count: card_count
+    %}
+
+    <div class="collection-page__results" id="ProductGridContainer" data-facets-results>
+      {%- if collection.products.size > 0 -%}
+        <ul class="product-grid" role="list" style="--columns-desktop: {{ section.settings.columns_desktop }};">
+          {%- for product in collection.products -%}
+            {%- liquid
+              assign color_values = nil
+              if card_per_color
+                for option in product.options_with_values
+                  assign option_name = option.name | downcase
+                  if option_name == 'color' or option_name == 'colour'
+                    assign color_values = option.values
+                  endif
+                endfor
+              endif
+              assign eager = false
+              if forloop.index <= 2
+                assign eager = true
+              endif
+            -%}
+            {%- if color_values -%}
+              {%- for value in color_values -%}
+                {%- assign color_token = '|' | append: value.name | append: '|' -%}
+                {%- if active_colors == '' or active_colors contains color_token -%}
+                  <li>{% render 'product-card', product: product, color: value.name, eager: eager %}</li>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- else -%}
+              <li>{% render 'product-card', product: product, eager: eager %}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+
+        {%- if paginate.pages > 1 -%}
+          {% render 'pagination', paginate: paginate %}
+        {%- endif -%}
+      {%- else -%}
+        <div class="collection-page__empty">
+          <p>{{ 'collection.empty' | t }}</p>
+          <a class="button button--secondary" href="{{ collection.url }}" data-facet-link>{{ 'collection.clear_all' | t }}</a>
         </div>
-      </div>
-    {% endfor %}
-
-    {{ paginate | default_pagination }}
-  {% endpaginate %}
+      {%- endif -%}
+    </div>
+  {%- endpaginate -%}
 </div>
 
 {% stylesheet %}
-  .collection-products {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  .collection-page {
+    padding-block: clamp(32px, 5vw, 64px) clamp(64px, 8vw, 120px);
+  }
+
+  .collection-page__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding-block: 48px;
   }
 {% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:general.collection",
-  "settings": []
+  "name": "Colección",
+  "tag": "section",
+  "class": "section-collection",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto pequeño",
+      "default": "Algodón 100%"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Mostrar la descripción de la colección",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "card_per_color",
+      "label": "Mostrar una tarjeta por color",
+      "info": "Si filtran por color, solo se muestran las tarjetas de esos colores.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Productos por página",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columnas en escritorio",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "paragraph",
+      "content": "Los filtros (peso, color, talla, precio) se activan en la app gratuita Search & Discovery de Shopify."
+    }
+  ]
 }
 {% endschema %}
