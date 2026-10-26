@@ -1,0 +1,173 @@
+{% doc %}
+  Product card: 4:5 image (second image on hover), weight badge,
+  "Product — Color" title, price and color swatches.
+
+  When a color is given, the card shows that color: its variant link,
+  its lowest price and the photos whose alt text contains the color name.
+
+  @param {object} [product] - Product. When blank, renders a placeholder card.
+  @param {string} [color] - Color option value to feature
+  @param {string} [sizes] - The sizes attribute for the image srcset
+  @param {boolean} [eager] - Load the image eagerly (above the fold)
+
+  @example
+  {% render 'product-card', product: product, color: 'Hueso' %}
+{% enddoc %}
+{%- liquid
+  assign image_sizes = sizes | default: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw'
+  assign image_loading = 'lazy'
+  if eager
+    assign image_loading = 'eager'
+  endif
+-%}
+
+{%- if product == blank -%}
+  <div class="product-card product-card--placeholder">
+    <div class="product-card__media">
+      {{ 'product-apparel-1' | placeholder_svg_tag: 'product-card__placeholder' }}
+    </div>
+    <div class="product-card__info">
+      <p class="product-card__title">{{ 'product_card.placeholder_title' | t }}</p>
+      <p class="product-card__price">{{ 0 | money }}</p>
+    </div>
+  </div>
+{%- else -%}
+  {%- liquid
+    assign color_option = nil
+    for option in product.options_with_values
+      assign option_name = option.name | downcase
+      if option_name == 'color' or option_name == 'colour'
+        assign color_option = option
+      endif
+    endfor
+
+    assign variant = product.selected_or_first_available_variant
+    assign price = product.price
+    assign title = product.title
+
+    if color != blank and color_option
+      assign option_key = 'option' | append: color_option.position
+      assign color_variants = product.variants | where: option_key, color
+      assign available_color_variants = color_variants | where: 'available'
+      if available_color_variants.size > 0
+        assign variant = available_color_variants.first
+      elsif color_variants.size > 0
+        assign variant = color_variants.first
+      endif
+      assign price = color_variants | sort: 'price' | map: 'price' | first
+      assign title = product.title | append: ' — ' | append: color
+    endif
+
+    assign image = nil
+    assign hover_image = nil
+    if color != blank
+      assign color_down = color | downcase
+      for media in product.media
+        if media.media_type != 'image'
+          continue
+        endif
+        assign media_alt = media.alt | downcase
+        if media_alt contains color_down
+          if image == nil
+            assign image = media
+          elsif hover_image == nil
+            assign hover_image = media
+            break
+          endif
+        endif
+      endfor
+    endif
+
+    if image == nil
+      assign image = variant.featured_media | default: product.featured_media
+    endif
+    if hover_image == nil and color == blank and product.media.size > 1
+      assign hover_image = product.media[1]
+    endif
+
+    assign gramaje = product.metafields.custom.gramaje.value
+    assign card_url = variant.url | default: product.url
+  -%}
+
+  <div class="product-card" data-product-id="{{ product.id }}">
+    <a class="product-card__media" href="{{ card_url }}" tabindex="-1" aria-hidden="true">
+      {%- if image -%}
+        {{
+          image
+          | image_url: width: 1000
+          | image_tag:
+            widths: '300, 400, 500, 600, 800, 1000',
+            sizes: image_sizes,
+            loading: image_loading,
+            alt: '',
+            class: 'product-card__image'
+        }}
+        {%- if hover_image -%}
+          {{
+            hover_image
+            | image_url: width: 1000
+            | image_tag:
+              widths: '300, 400, 500, 600, 800, 1000',
+              sizes: image_sizes,
+              loading: 'lazy',
+              alt: '',
+              class: 'product-card__image product-card__image--hover'
+          }}
+        {%- endif -%}
+      {%- else -%}
+        {{ 'product-apparel-1' | placeholder_svg_tag: 'product-card__placeholder' }}
+      {%- endif -%}
+
+      {%- if gramaje -%}
+        <span class="product-card__badge">{{ gramaje }} G</span>
+      {%- endif -%}
+    </a>
+
+    <div class="product-card__info">
+      <h3 class="product-card__title">
+        <a href="{{ card_url }}">{{ title }}</a>
+      </h3>
+      <p class="product-card__price">
+        {%- if gramaje -%}
+          <span class="visually-hidden">{{ 'product_card.weight' | t: weight: gramaje }}.</span>
+        {%- endif -%}
+        {%- if product.price_varies and color == blank -%}
+          {%- assign price_money = price | money -%}
+          {{ 'product_card.from_price_html' | t: price: price_money }}
+        {%- else -%}
+          {{ price | money }}
+        {%- endif -%}
+        {%- unless product.available -%}
+          <span class="product-card__sold-out">· {{ 'product_card.sold_out' | t }}</span>
+        {%- endunless -%}
+      </p>
+
+      {%- if color_option and color_option.values.size > 1 -%}
+        <ul class="swatches" role="list" aria-label="{{ 'product_card.colors' | t }}">
+          {%- for value in color_option.values -%}
+            {%- liquid
+              assign value_key = 'option' | append: color_option.position
+              assign value_variant = product.variants | where: value_key, value.name | first
+              assign is_current = false
+              if color != blank and value.name == color
+                assign is_current = true
+              endif
+            -%}
+            <li>
+              <a
+                class="swatch"
+                href="{{ value_variant.url | default: product.url }}"
+                style="--swatch: {% render 'swatch-color', value: value %};"
+                {% if is_current %}
+                  aria-current="true"
+                {% endif %}
+              >
+                <span class="visually-hidden">{{ product.title }} — {{ value.name }}</span>
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

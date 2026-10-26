@@ -86,8 +86,15 @@
         "type": "color",
         "id": "color_border",
         "label": "Borde",
-        "info": "Botones secundarios, campos y chips no seleccionados.",
+        "info": "Botones secundarios y chips no seleccionados.",
         "default": "#C9C0B1"
+      },
+      {
+        "type": "color",
+        "id": "color_field_border",
+        "label": "Borde de campos",
+        "info": "Borde de los campos de formulario. Más oscuro para que se distingan bien (contraste mínimo 3:1).",
+        "default": "#857C6E"
       }
     ]
   },
@@ -144,6 +151,22 @@
         "label": "Monto para envío gratis (COP)",
         "info": "Solo el número, sin puntos ni signo de pesos. Se muestra en la barra de anuncios (donde escribas [monto]) y en el carrito. Debe coincidir con la tarifa de envío gratis que configures en el panel de Shopify.",
         "default": 250000
+      }
+    ]
+  },
+  {
+    "name": "Muestras de color",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Los círculos de color de las tarjetas y la ficha de producto usan primero la muestra que definas en el producto (opción Color › muestra). Si no hay muestra, usan esta lista."
+      },
+      {
+        "type": "textarea",
+        "id": "swatch_colors",
+        "label": "Colores por nombre",
+        "info": "Una línea por color, con el formato Nombre: #código. Ejemplo: Hueso: #E9E2D3",
+        "default": "Hueso: #E9E2D3\nInk: #22252E\nOliva: #6B6B4A\nArena: #CDB892\nNiebla: #B9BEC0"
       }
     ]
   }

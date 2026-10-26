@@ -1,0 +1,34 @@
+{% doc %}
+  Outputs the CSS color for a color option value.
+  Uses the native Shopify swatch first, then the "Muestras de color" theme setting,
+  then the value name itself as a last resort.
+
+  @param {object} value - Product option value (or a plain string with the color name)
+
+  @example
+  style="--swatch: {% render 'swatch-color', value: value %}"
+{% enddoc %}
+{%- liquid
+  assign swatch_output = ''
+
+  if value.swatch.color
+    assign swatch_output = value.swatch.color
+  else
+    assign color_name = value.name | default: value | append: '' | strip | downcase
+    assign swatch_lines = settings.swatch_colors | newline_to_br | split: '<br />'
+
+    for line in swatch_lines
+      assign pair = line | split: ':'
+      assign line_name = pair.first | strip | downcase
+      if line_name == color_name and pair.size > 1
+        assign swatch_output = pair.last | strip
+        break
+      endif
+    endfor
+
+    if swatch_output == ''
+      assign swatch_output = color_name | replace: ' ', ''
+    endif
+  endif
+-%}
+{{- swatch_output -}}

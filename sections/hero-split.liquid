@@ -1,0 +1,261 @@
+<div class="hero-split full-width section--{{ section.settings.background }}">
+  <div class="hero-split__inner container{% if section.settings.image_first %} hero-split__inner--image-first{% endif %}">
+    <div class="hero-split__content">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.heading != blank -%}
+        <h1 class="hero-split__heading">{{ section.settings.heading }}</h1>
+      {%- endif -%}
+
+      {%- if section.settings.text != blank -%}
+        <div class="hero-split__text text-secondary rte">{{ section.settings.text }}</div>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank or section.settings.button_secondary_label != blank -%}
+        <div class="hero-split__buttons">
+          {%- if section.settings.button_label != blank -%}
+            <a class="button" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+              {{- section.settings.button_label -}}
+            </a>
+          {%- endif -%}
+          {%- if section.settings.button_secondary_label != blank -%}
+            <a class="button button--secondary" href="{{ section.settings.button_secondary_link | default: '#peso' }}">
+              {{- section.settings.button_secondary_label -}}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="hero-split__media">
+      {%- if section.settings.image != blank -%}
+        {{
+          section.settings.image
+          | image_url: width: 1600
+          | image_tag:
+            widths: '400, 600, 800, 1000, 1200, 1400, 1600',
+            sizes: '(min-width: 990px) 50vw, 100vw',
+            loading: 'eager',
+            fetchpriority: 'high',
+            class: 'hero-split__image'
+        }}
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-split__image hero-split__placeholder' }}
+      {%- endif -%}
+
+      {%- if section.settings.badge_number != blank -%}
+        <p class="hero-split__badge">
+          <span class="hero-split__badge-number">{{ section.settings.badge_number }}</span>
+          <span class="hero-split__badge-label">{{ section.settings.badge_label }}</span>
+        </p>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .hero-split__inner {
+    display: grid;
+    gap: 40px;
+    padding-block: clamp(40px, 6vw, 96px);
+  }
+
+  .hero-split__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    max-width: 600px;
+  }
+
+  .hero-split__heading {
+    font-size: clamp(2.75rem, 1.6rem + 4.6vw, 5.5rem);
+  }
+
+  .hero-split__text {
+    font-size: 1.0625rem;
+    max-width: 480px;
+  }
+
+  .hero-split__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .hero-split__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+
+  .hero-split__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-split__placeholder {
+    fill: var(--color-border);
+  }
+
+  .hero-split__badge {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    background-color: var(--color-card);
+  }
+
+  .hero-split__badge-number {
+    font-family: var(--font-heading--family);
+    font-size: 2rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--color-accent);
+  }
+
+  .hero-split__badge-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  @media (min-width: 990px) {
+    .hero-split__inner {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: clamp(48px, 6vw, 96px);
+    }
+
+    .hero-split__inner--image-first .hero-split__media {
+      order: -1;
+    }
+
+    .hero-split__badge {
+      left: 24px;
+      bottom: 24px;
+      padding: 16px 20px;
+    }
+
+    .hero-split__badge-number {
+      font-size: 2.5rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Hero dividido",
+  "tag": "section",
+  "class": "section-hero-split",
+  "settings": [
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Fondo",
+      "options": [
+        { "value": "background", "label": "Fondo (Ivory)" },
+        { "value": "surface", "label": "Superficie" }
+      ],
+      "default": "background"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto pequeño",
+      "default": "Algodón 100% · 210 g y 260 g"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "El peso de lo esencial."
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Párrafo",
+      "default": "<p>Camisetas de algodón 100% en dos gramajes: Páramo 260, con cuerpo y estructura, y Valle 210, ligera y fresca. Pensadas para usarse todos los días.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Botones"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Botón principal",
+      "default": "Comprar camisetas"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Enlace del botón principal",
+      "info": "Si lo dejas vacío, lleva a todos los productos."
+    },
+    {
+      "type": "text",
+      "id": "button_secondary_label",
+      "label": "Botón secundario",
+      "default": "Elige tu peso"
+    },
+    {
+      "type": "url",
+      "id": "button_secondary_link",
+      "label": "Enlace del botón secundario",
+      "info": "Si lo dejas vacío, baja hasta la sección Índice de peso (#peso)."
+    },
+    {
+      "type": "header",
+      "content": "Imagen"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Imagen",
+      "info": "Proporción 4:5 (vertical). Recomendado: 1600 × 2000 px. Escribe un texto alternativo al subirla."
+    },
+    {
+      "type": "checkbox",
+      "id": "image_first",
+      "label": "Imagen a la izquierda en escritorio",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "badge_number",
+      "label": "Etiqueta flotante: número",
+      "info": "Déjalo vacío para ocultar la etiqueta.",
+      "default": "260"
+    },
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Etiqueta flotante: texto",
+      "default": "gramos / m²"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero dividido"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

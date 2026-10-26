@@ -1,0 +1,38 @@
+{% doc %}
+  Single-line (monoline) illustrations drawn in the accent color, like an embroidery stitch.
+
+  @param {string} name - 'palmera' or 'faro'
+  @param {string} [label] - Accessible description. When blank the drawing is decorative.
+
+  @example
+  {% render 'illustration', name: 'palmera' %}
+{% enddoc %}
+<svg
+  class="illustration illustration--{{ name }}"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 200 240"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  {% if label != blank %}
+    role="img" aria-label="{{ label | escape }}"
+  {% else %}
+    aria-hidden="true"
+  {% endif %}
+  focusable="false"
+>
+  {%- case name -%}
+    {%- when 'palmera' -%}
+      <path
+        vector-effect="non-scaling-stroke"
+        d="M18 210C50 202 80 214 120 206C142 202 166 206 184 212C160 211 124 214 98 208C104 170 100 130 110 92C132 82 160 90 178 116C156 100 134 94 110 92C130 66 156 56 182 62C156 70 132 80 110 92C112 68 122 46 140 32C128 52 118 72 110 92C94 70 70 56 44 58C68 68 90 80 110 92C88 84 58 90 36 116C58 102 86 94 110 92C104 98 100 106 106 110C112 112 116 102 110 92"
+      />
+    {%- when 'faro' -%}
+      <path
+        vector-effect="non-scaling-stroke"
+        d="M12 216C26 210 40 210 54 216S76 222 84 214L92 106H86V100H92V80C92 70 108 70 108 80V100H114V106H108L116 214C124 222 136 222 146 216S174 210 188 216M114 86L150 78M114 94L150 102M86 86L50 78M86 94L50 102M96 214V198C96 192 104 192 104 198V214M88.7 150H111.3M90.7 128H109.3"
+      />
+  {%- endcase -%}
+</svg>

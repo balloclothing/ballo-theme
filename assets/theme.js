@@ -68,3 +68,35 @@ document.addEventListener('keydown', (event) => {
     details.querySelector('summary')?.focus();
   });
 });
+
+/**
+ * Filters a product grid by product line (chips with aria-pressed).
+ * Each chip's data-filter holds a product id; an empty value shows everything.
+ */
+class FilterChips extends HTMLElement {
+  connectedCallback() {
+    this.chips = this.querySelectorAll('[data-filter]');
+    this.items = this.querySelectorAll('.product-grid > [data-product-id]');
+    this.status = this.querySelector('[data-filter-status]');
+    this.chips.forEach((chip) => chip.addEventListener('click', () => this.select(chip)));
+  }
+
+  select(selected) {
+    const filter = selected.dataset.filter;
+    let visible = 0;
+
+    this.chips.forEach((chip) => chip.setAttribute('aria-pressed', String(chip === selected)));
+    this.items.forEach((item) => {
+      const show = !filter || item.dataset.productId === filter;
+      item.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    if (this.status) {
+      const template = visible === 1 ? this.dataset.statusOne : this.dataset.statusOther;
+      this.status.textContent = (template || '').replace('[count]', visible);
+    }
+  }
+}
+
+if (!customElements.get('filter-chips')) customElements.define('filter-chips', FilterChips);

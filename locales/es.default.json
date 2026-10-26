@@ -77,5 +77,28 @@
     "submit": "Buscar",
     "no_results_html": "No encontramos resultados para {{ terms }}",
     "results_for_html": "{{ count }} resultados para {{ terms }}"
+  },
+  "weight_bars": {
+    "grosor": "Grosor",
+    "estructura": "Estructura",
+    "frescura": "Frescura",
+    "value_label": "{{ label }}: {{ value }} de 100"
+  },
+  "weight_index": {
+    "unit": "g/m²",
+    "view_line": "Ver {{ name }}"
+  },
+  "product_card": {
+    "placeholder_title": "Nombre del producto",
+    "from_price_html": "Desde {{ price }}",
+    "sold_out": "Agotado",
+    "colors": "Colores disponibles",
+    "weight": "Algodón de {{ weight }} g/m²"
+  },
+  "featured_products": {
+    "filter_label": "Filtrar por línea",
+    "all": "Todas",
+    "status_one": "Mostrando 1 camiseta",
+    "status_other": "Mostrando [count] camisetas"
   }
 }

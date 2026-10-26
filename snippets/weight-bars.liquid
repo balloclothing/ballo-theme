@@ -1,0 +1,37 @@
+{% doc %}
+  Three horizontal bars (Grosor, Estructura, Frescura) on a 0-100 scale.
+  Values usually come from the product metafields custom.grosor,
+  custom.estructura and custom.frescura.
+
+  @param {number} grosor - 0 to 100
+  @param {number} estructura - 0 to 100
+  @param {number} frescura - 0 to 100
+
+  @example
+  {% render 'weight-bars', grosor: 86, estructura: 90, frescura: 55 %}
+{% enddoc %}
+{%- liquid
+  assign bar_labels = 'weight_bars.grosor,weight_bars.estructura,weight_bars.frescura' | split: ','
+  assign bar_values = grosor | append: ',' | append: estructura | append: ',' | append: frescura | split: ','
+-%}
+<dl class="weight-bars">
+  {%- for label_key in bar_labels -%}
+    {%- liquid
+      assign bar_value = bar_values[forloop.index0] | plus: 0 | at_least: 0 | at_most: 100
+      assign bar_label = label_key | t
+    -%}
+    <div class="weight-bars__row">
+      <dt class="weight-bars__label">{{ bar_label }}</dt>
+      <dd class="weight-bars__value">
+        <span
+          class="weight-bars__track"
+          role="img"
+          aria-label="{{ 'weight_bars.value_label' | t: label: bar_label, value: bar_value }}"
+        >
+          <span class="weight-bars__fill" style="--value: {{ bar_value }}%;"></span>
+        </span>
+        <span class="weight-bars__number" aria-hidden="true">{{ bar_value }}</span>
+      </dd>
+    </div>
+  {%- endfor -%}
+</dl>

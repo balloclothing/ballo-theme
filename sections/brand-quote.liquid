@@ -1,0 +1,95 @@
+<div class="brand-quote section section--{{ section.settings.background }} full-width">
+  <figure class="brand-quote__inner container">
+    {%- if section.settings.quote != blank -%}
+      <blockquote class="brand-quote__text">
+        <p>{{ section.settings.quote }}</p>
+      </blockquote>
+    {%- endif -%}
+
+    {%- if section.settings.link_label != blank -%}
+      <figcaption>
+        <a class="link-arrow brand-quote__link" href="{{ section.settings.link | default: '/pages/historia' }}">
+          {{- section.settings.link_label }}
+          {% render 'icon', name: 'arrow-right', class: 'link-arrow__icon' %}
+        </a>
+      </figcaption>
+    {%- endif -%}
+  </figure>
+</div>
+
+{% stylesheet %}
+  .brand-quote__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    text-align: center;
+  }
+
+  .brand-quote__text {
+    max-width: 960px;
+    margin: 0;
+  }
+
+  .brand-quote__text p {
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.75rem, 1.2rem + 2.4vw, 3.25rem);
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .brand-quote__link {
+    gap: 8px;
+    color: var(--color-accent);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Cita de marca",
+  "tag": "section",
+  "class": "section-brand-quote",
+  "settings": [
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Fondo",
+      "info": "En Banda arena usa solo texto tinta o bronce para mantener buen contraste.",
+      "options": [
+        { "value": "sand", "label": "Banda arena" },
+        { "value": "surface", "label": "Superficie" },
+        { "value": "background", "label": "Fondo (Ivory)" }
+      ],
+      "default": "sand"
+    },
+    {
+      "type": "textarea",
+      "id": "quote",
+      "label": "Frase",
+      "default": "«Hacemos menos prendas, para que las tuyas duren más.»"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Texto del enlace",
+      "default": "Nuestra historia"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Enlace",
+      "info": "Si lo dejas vacío, lleva a /pages/historia."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Cita de marca"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

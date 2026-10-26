@@ -9,12 +9,130 @@
  */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
-      "settings": {}
+    "hero": {
+      "type": "hero-split",
+      "settings": {
+        "background": "background",
+        "eyebrow": "Algodón 100% · 210 g y 260 g",
+        "heading": "El peso de lo esencial.",
+        "text": "<p>Camisetas de algodón 100% en dos gramajes: Páramo 260, con cuerpo y estructura, y Valle 210, ligera y fresca. Pensadas para usarse todos los días.</p>",
+        "button_label": "Comprar camisetas",
+        "button_link": "",
+        "button_secondary_label": "Elige tu peso",
+        "button_secondary_link": "",
+        "image_first": false,
+        "badge_number": "260",
+        "badge_label": "gramos / m²"
+      }
+    },
+    "weight_index": {
+      "type": "weight-index",
+      "blocks": {
+        "paramo": {
+          "type": "line",
+          "settings": {
+            "name": "Páramo",
+            "description": "Algodón 100% de 260 g/m². Más cuerpo y una caída firme.",
+            "link_label": "",
+            "subtitle": "Heavyweight · Estructura",
+            "gramaje": 260,
+            "grosor": 86,
+            "estructura": 90,
+            "frescura": 55
+          }
+        },
+        "valle": {
+          "type": "line",
+          "settings": {
+            "name": "Valle",
+            "description": "Algodón 100% de 210 g/m². Más ligera y fresca, para el calor y el día a día.",
+            "link_label": "",
+            "subtitle": "Peso medio · Ligera",
+            "gramaje": 210,
+            "grosor": 52,
+            "estructura": 45,
+            "frescura": 88
+          }
+        }
+      },
+      "block_order": ["paramo", "valle"],
+      "settings": {
+        "background": "surface",
+        "eyebrow": "Índice de peso",
+        "heading": "Dos gramajes. Una sola obsesión.",
+        "anchor": "peso"
+      }
+    },
+    "esenciales": {
+      "type": "featured-products",
+      "settings": {
+        "background": "background",
+        "eyebrow": "Esenciales",
+        "heading": "Las de todos los días.",
+        "collection": "",
+        "card_per_color": true,
+        "show_filters": true,
+        "max_cards": 12,
+        "columns_desktop": 4,
+        "link_label": "Ver todas",
+        "anchor": "esenciales"
+      }
+    },
+    "costa": {
+      "type": "coming-soon",
+      "blocks": {
+        "palmera": {
+          "type": "illustration",
+          "settings": { "illustration": "palmera", "caption": "Palmera" }
+        },
+        "faro": {
+          "type": "illustration",
+          "settings": { "illustration": "faro", "caption": "Faro" }
+        }
+      },
+      "block_order": ["palmera", "faro"],
+      "settings": {
+        "background": "surface",
+        "eyebrow": "Próximamente · Costa · Bordado monolínea",
+        "heading": "Un solo trazo, bordado a mano.",
+        "text": "<p>Costa es nuestra próxima línea: ilustraciones de un solo trazo, bordadas en bronce. Déjanos tu correo y te avisamos antes que a nadie.</p>",
+        "button_label": "Avísame",
+        "tag": "costa-waitlist",
+        "success_message": "¡Listo! Te avisaremos cuando Costa esté disponible.",
+        "anchor": "costa"
+      }
+    },
+    "quote": {
+      "type": "brand-quote",
+      "settings": {
+        "background": "sand",
+        "quote": "«Hacemos menos prendas, para que las tuyas duren más.»",
+        "link_label": "Nuestra historia",
+        "link": ""
+      }
+    },
+    "guarantees": {
+      "type": "guarantees",
+      "blocks": {
+        "envio": {
+          "type": "item",
+          "settings": { "icon": "truck", "title": "Envío a todo Colombia", "text": "Llegamos a cualquier ciudad del país." }
+        },
+        "cambios": {
+          "type": "item",
+          "settings": { "icon": "exchange", "title": "Cambios en 30 días", "text": "Si la talla no es la tuya, la cambias." }
+        },
+        "pago": {
+          "type": "item",
+          "settings": { "icon": "lock", "title": "Pago seguro", "text": "Checkout protegido por Shopify." }
+        }
+      },
+      "block_order": ["envio", "cambios", "pago"],
+      "settings": {
+        "background": "background",
+        "heading": "Nuestras garantías"
+      }
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["hero", "weight_index", "esenciales", "costa", "quote", "guarantees"]
 }

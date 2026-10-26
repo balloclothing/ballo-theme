@@ -1,0 +1,303 @@
+<div
+  class="weight-index section section--{{ section.settings.background }} full-width"
+  {% if section.settings.anchor != blank %}
+    id="{{ section.settings.anchor | handleize }}"
+  {% endif %}
+>
+  <div class="container">
+    <div class="section-heading">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        <h2>{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      {%- if section.settings.text != blank -%}
+        <div class="text-secondary rte">{{ section.settings.text }}</div>
+      {%- endif -%}
+    </div>
+
+    <ul class="weight-index__grid" role="list">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign line_product = block.settings.product
+          assign fields = line_product.metafields.custom
+
+          assign line_name = block.settings.name
+          if line_name == blank and line_product
+            assign line_name = line_product.title | split: ' ' | first
+          endif
+
+          assign line_subtitle = fields.subtitulo_linea.value | default: block.settings.subtitle
+          assign line_gramaje = fields.gramaje.value | default: block.settings.gramaje
+
+          assign line_description = block.settings.description
+          if line_description == blank and line_product
+            assign line_description = line_product.description | strip_html | truncatewords: 28
+          endif
+
+          assign grosor = fields.grosor.value | default: block.settings.grosor
+          assign estructura = fields.estructura.value | default: block.settings.estructura
+          assign frescura = fields.frescura.value | default: block.settings.frescura
+
+          assign line_url = line_product.url | default: routes.all_products_collection_url
+          assign link_label = block.settings.link_label
+          if link_label == blank
+            assign link_label = 'weight_index.view_line' | t: name: line_name
+          endif
+        -%}
+        <li class="weight-card" {{ block.shopify_attributes }}>
+          <div class="weight-card__top">
+            {%- if line_subtitle != blank -%}
+              <p class="eyebrow">{{ line_subtitle }}</p>
+            {%- endif -%}
+            <h3 class="weight-card__name">{{ line_name }}</h3>
+          </div>
+
+          {%- if line_gramaje != blank -%}
+            <p class="weight-card__weight">
+              <span class="weight-card__number">{{ line_gramaje }}</span>
+              <span class="weight-card__unit">{{ 'weight_index.unit' | t }}</span>
+            </p>
+          {%- endif -%}
+
+          {%- if line_description != blank -%}
+            <p class="weight-card__description text-secondary">{{ line_description }}</p>
+          {%- endif -%}
+
+          {% render 'weight-bars', grosor: grosor, estructura: estructura, frescura: frescura %}
+
+          <a class="link-arrow weight-card__link" href="{{ line_url }}">
+            {{- link_label }}
+            {% render 'icon', name: 'arrow-right', class: 'link-arrow__icon' %}
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>
+
+{% stylesheet %}
+  .weight-index__grid {
+    display: grid;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .weight-card {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: clamp(24px, 4vw, 48px);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background-color: var(--color-card);
+  }
+
+  .weight-card__top {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .weight-card__name {
+    font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+    font-weight: 300;
+  }
+
+  .weight-card__weight {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    color: var(--color-accent);
+  }
+
+  .weight-card__number {
+    font-family: var(--font-heading--family);
+    font-size: clamp(5rem, 3rem + 8vw, 9rem);
+    font-weight: 300;
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+  }
+
+  .weight-card__unit {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .weight-card__description {
+    max-width: 440px;
+  }
+
+  .weight-card__link {
+    align-self: flex-start;
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  .link-arrow__icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (min-width: 750px) {
+    .weight-index__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Índice de peso",
+  "tag": "section",
+  "class": "section-weight-index",
+  "settings": [
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Fondo",
+      "options": [
+        { "value": "surface", "label": "Superficie" },
+        { "value": "background", "label": "Fondo (Ivory)" }
+      ],
+      "default": "surface"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto pequeño",
+      "default": "Índice de peso"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Dos gramajes. Una sola obsesión."
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Texto (opcional)"
+    },
+    {
+      "type": "text",
+      "id": "anchor",
+      "label": "Ancla",
+      "info": "Permite enlazar a esta sección con #ancla (por ejemplo, /#peso desde el menú).",
+      "default": "peso"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "line",
+      "name": "Línea",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Producto",
+          "info": "El subtítulo, el gramaje y las barras se leen de los metacampos del producto."
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Nombre",
+          "info": "Si lo dejas vacío, se usa la primera palabra del producto (por ejemplo, Páramo)."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Descripción",
+          "info": "Si la dejas vacía, se usa el inicio de la descripción del producto."
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Texto del enlace",
+          "info": "Si lo dejas vacío: «Ver [Nombre]»."
+        },
+        {
+          "type": "header",
+          "content": "Valores de respaldo",
+          "info": "Solo se usan si el producto no tiene llenos sus metacampos."
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtítulo de la línea"
+        },
+        {
+          "type": "number",
+          "id": "gramaje",
+          "label": "Gramaje (g/m²)"
+        },
+        {
+          "type": "range",
+          "id": "grosor",
+          "label": "Grosor",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "estructura",
+          "label": "Estructura",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "frescura",
+          "label": "Frescura",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Índice de peso",
+      "blocks": [
+        {
+          "type": "line",
+          "settings": {
+            "name": "Páramo",
+            "subtitle": "Heavyweight · Estructura",
+            "gramaje": 260,
+            "grosor": 86,
+            "estructura": 90,
+            "frescura": 55
+          }
+        },
+        {
+          "type": "line",
+          "settings": {
+            "name": "Valle",
+            "subtitle": "Peso medio · Ligera",
+            "gramaje": 210,
+            "grosor": 52,
+            "estructura": 45,
+            "frescura": 88
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}
