@@ -1,82 +1,149 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Skeleton",
-    "theme_version": "0.1.0",
-    "theme_author": "Shopify",
-    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
-    "theme_support_url": "https://support.shopify.com/"
+    "theme_name": "Ballō",
+    "theme_version": "0.2.0",
+    "theme_author": "Ballō",
+    "theme_documentation_url": "https://help.shopify.com/es/manual/online-store/themes",
+    "theme_support_url": "https://help.shopify.com/es"
   },
   {
-    "name": "t:general.typography",
+    "name": "Colores",
     "settings": [
+      {
+        "type": "paragraph",
+        "content": "Paleta de Ballō. Cada color se usa en todo el tema; cámbialo aquí y se actualiza en todas las páginas. Mantén buen contraste entre textos y fondos."
+      },
       {
         "type": "header",
-        "content": "t:general.fonts"
+        "content": "Fondos"
       },
       {
-        "type": "font_picker",
-        "id": "type_primary_font",
-        "default": "work_sans_n4",
-        "label": "t:general.primary"
-      },
-    ]
-  },
-  {
-    "name": "t:general.layout",
-    "settings": [
-      {
-        "type": "select",
-        "id": "max_page_width",
-        "label": "t:labels.page_width",
-        "options": [
-          {
-            "value": "90rem",
-            "label": "t:options.page_width.narrow"
-          },
-          {
-            "value": "110rem",
-            "label": "t:options.page_width.wide"
-          }
-        ],
-        "default": "90rem"
+        "type": "color",
+        "id": "color_background",
+        "label": "Fondo (Ivory)",
+        "info": "Fondo general de la tienda.",
+        "default": "#F7F3EC"
       },
       {
-        "type": "range",
-        "id": "min_page_margin",
-        "min": 10,
-        "max": 100,
-        "step": 1,
-        "unit": "px",
-        "label": "t:labels.page_margin",
-        "default": 20
+        "type": "color",
+        "id": "color_surface",
+        "label": "Superficie",
+        "info": "Secciones alternas.",
+        "default": "#EFE9DF"
+      },
+      {
+        "type": "color",
+        "id": "color_card",
+        "label": "Tarjeta",
+        "info": "Tarjetas y campos de formulario.",
+        "default": "#FBF9F4"
+      },
+      {
+        "type": "color",
+        "id": "color_sand",
+        "label": "Banda arena",
+        "info": "Banda de cita de marca.",
+        "default": "#E9E0D0"
+      },
+      {
+        "type": "header",
+        "content": "Textos y acentos"
+      },
+      {
+        "type": "color",
+        "id": "color_ink",
+        "label": "Tinta",
+        "info": "Texto principal, botones primarios y barra de anuncios.",
+        "default": "#1A1917"
+      },
+      {
+        "type": "color",
+        "id": "color_text_secondary",
+        "label": "Texto secundario",
+        "info": "Descripciones y etiquetas.",
+        "default": "#6B655C"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Acento bronce",
+        "info": "Textos pequeños de sección, números de gramaje, íconos y bordados.",
+        "default": "#7A5C33"
+      },
+      {
+        "type": "header",
+        "content": "Líneas"
+      },
+      {
+        "type": "color",
+        "id": "color_line",
+        "label": "Línea",
+        "info": "Divisores.",
+        "default": "#E2DBCF"
+      },
+      {
+        "type": "color",
+        "id": "color_border",
+        "label": "Borde",
+        "info": "Botones secundarios, campos y chips no seleccionados.",
+        "default": "#C9C0B1"
       }
     ]
   },
   {
-    "name": "t:general.colors",
+    "name": "Tipografía",
     "settings": [
       {
-        "type": "color",
-        "id": "background_color",
-        "default": "#FFFFFF",
-        "label": "t:labels.background"
+        "type": "font_picker",
+        "id": "font_heading",
+        "label": "Títulos y logotipo",
+        "info": "Recomendado: Fraunces.",
+        "default": "fraunces_n4"
       },
       {
-        "type": "color",
-        "id": "foreground_color",
-        "default": "#333333",
-        "label": "t:labels.foreground"
+        "type": "font_picker",
+        "id": "font_body",
+        "label": "Texto general",
+        "info": "Recomendado: Inter.",
+        "default": "inter_n4"
+      }
+    ]
+  },
+  {
+    "name": "Diseño",
+    "settings": [
+      {
+        "type": "range",
+        "id": "page_width",
+        "min": 1100,
+        "max": 1600,
+        "step": 20,
+        "unit": "px",
+        "label": "Ancho máximo del contenido",
+        "default": 1360
       },
       {
         "type": "range",
-        "id": "input_corner_radius",
+        "id": "corner_radius",
         "min": 0,
-        "max": 10,
+        "max": 12,
         "step": 1,
         "unit": "px",
-        "label": "t:labels.input_corner_radius",
+        "label": "Radio de esquinas",
         "default": 4
+      }
+    ]
+  },
+  {
+    "name": "Envíos",
+    "settings": [
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Monto para envío gratis (COP)",
+        "info": "Solo el número, sin puntos ni signo de pesos. Se muestra en la barra de anuncios (donde escribas [monto]) y en el carrito. Debe coincidir con la tarifa de envío gratis que configures en el panel de Shopify.",
+        "default": 250000
       }
     ]
   }

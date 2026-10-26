@@ -1,66 +1,471 @@
-<header>
-  <h2 class="header__title">
-    {{ shop.name | link_to: routes.root_url }}
-  </h2>
+{%- liquid
+  assign menu = section.settings.menu
+  assign logo_text = section.settings.logo_text | default: shop.name
+-%}
 
-  <div class="header__menu">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
-  </div>
+{% style %}
+  .site-header__logo-image {
+    width: {{ section.settings.logo_width }}px;
+  }
+  {%- if section.settings.sticky %}
+    .section-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+  {%- endif %}
+{% endstyle %}
 
-  <div class="header__icons">
-    {% if shop.customer_accounts_enabled %}
-      {{ 'icon-account.svg' | inline_asset_content | link_to: routes.account_url }}
-    {% endif %}
+<header class="site-header full-width">
+  <div class="site-header__inner container">
+    <div class="site-header__start">
+      <button
+        type="button"
+        class="icon-button site-header__menu-toggle"
+        aria-controls="MenuDrawer"
+        aria-expanded="false"
+        aria-label="{{ 'header.open_menu' | t }}"
+      >
+        {% render 'icon', name: 'menu' %}
+      </button>
 
-    <a href="{{ routes.cart_url }}">
-      {% if cart.item_count > 0 %}
-        <sup>{{ cart.item_count }}</sup>
-      {% endif %}
+      {%- if menu.links.size > 0 -%}
+        <nav class="site-header__nav" aria-label="{{ 'header.main_navigation' | t }}">
+          <ul class="site-nav" role="list">
+            {%- for link in menu.links -%}
+              <li class="site-nav__item">
+                {%- if link.links.size > 0 -%}
+                  <details class="site-nav__dropdown">
+                    <summary class="site-nav__link">
+                      {{ link.title }}
+                      {% render 'icon', name: 'chevron-down', class: 'site-nav__chevron' %}
+                    </summary>
+                    <ul class="site-nav__submenu" role="list">
+                      {%- for child in link.links -%}
+                        <li>
+                          <a
+                            class="site-nav__sublink"
+                            href="{{ child.url }}"
+                            {% if child.current %}
+                              aria-current="page"
+                            {% endif %}
+                          >
+                            {{- child.title -}}
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </details>
+                {%- else -%}
+                  <a
+                    class="site-nav__link"
+                    href="{{ link.url }}"
+                    {% if link.current %}
+                      aria-current="page"
+                    {% endif %}
+                  >
+                    {{- link.title -}}
+                  </a>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </nav>
+      {%- endif -%}
+    </div>
 
-      {{ 'icon-cart.svg' | inline_asset_content }}
+    <a class="site-header__logo" href="{{ routes.root_url }}">
+      {%- if section.settings.logo != blank -%}
+        {{
+          section.settings.logo
+          | image_url: width: 600
+          | image_tag:
+            alt: shop.name,
+            widths: '200, 300, 400, 600',
+            sizes: '240px',
+            loading: 'eager',
+            class: 'site-header__logo-image'
+        }}
+      {%- else -%}
+        <span class="site-header__logo-text">{{ logo_text }}</span>
+      {%- endif -%}
     </a>
+
+    <div class="site-header__end">
+      <a class="icon-button" href="{{ routes.search_url }}" aria-label="{{ 'header.search' | t }}">
+        {% render 'icon', name: 'search' %}
+      </a>
+      <a
+        class="icon-button site-header__cart"
+        href="{{ routes.cart_url }}"
+        id="HeaderCartLink"
+        aria-label="{{ 'header.cart_count' | t: count: cart.item_count }}"
+      >
+        {% render 'icon', name: 'bag' %}
+        <span class="cart-count" data-cart-count {% if cart.item_count == 0 %}hidden{% endif %} aria-hidden="true">
+          {{- cart.item_count -}}
+        </span>
+      </a>
+    </div>
   </div>
 </header>
 
+<menu-drawer>
+  <dialog id="MenuDrawer" class="menu-drawer" aria-label="{{ 'header.menu' | t }}" scroll-lock>
+    <div class="menu-drawer__header">
+      <span class="site-header__logo-text">{{ logo_text }}</span>
+      <button type="button" class="icon-button" data-menu-close aria-label="{{ 'header.close_menu' | t }}">
+        {% render 'icon', name: 'close' %}
+      </button>
+    </div>
+
+    <nav class="menu-drawer__nav" aria-label="{{ 'header.main_navigation' | t }}">
+      <ul class="menu-drawer__list" role="list">
+        {%- for link in menu.links -%}
+          <li>
+            <a
+              class="menu-drawer__link"
+              href="{{ link.url }}"
+              {% if link.current %}
+                aria-current="page"
+              {% endif %}
+            >
+              {{- link.title -}}
+            </a>
+            {%- if link.links.size > 0 -%}
+              <ul class="menu-drawer__sublist" role="list">
+                {%- for child in link.links -%}
+                  <li>
+                    <a
+                      class="menu-drawer__sublink"
+                      href="{{ child.url }}"
+                      {% if child.current %}
+                        aria-current="page"
+                      {% endif %}
+                    >
+                      {{- child.title -}}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    <a class="menu-drawer__search" href="{{ routes.search_url }}">
+      {% render 'icon', name: 'search' %}
+      {{ 'header.search' | t }}
+    </a>
+  </dialog>
+</menu-drawer>
+
 {% stylesheet %}
-  header {
-    height: 5rem;
+  .site-header {
+    background-color: var(--color-background-translucent);
+    border-bottom: 1px solid var(--color-line);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    backdrop-filter: saturate(140%) blur(12px);
+  }
+
+  .site-header__inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-height: var(--header-height);
+  }
+
+  .site-header__start {
+    display: flex;
+    align-items: center;
+    margin-inline-start: -10px;
+  }
+
+  .site-header__end {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+    margin-inline-end: -10px;
+  }
+
+  .site-header__logo {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+
+  .site-header__logo-text {
+    font-family: var(--font-heading--family);
+    font-size: 1.375rem;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0.24em;
+    /* Balances the trailing letter-spacing so the word stays optically centered */
+    margin-inline-end: -0.24em;
+    text-transform: uppercase;
+  }
+
+  .site-header__logo-image {
+    max-width: 40vw;
+    height: auto;
+  }
+
+  .site-nav {
+    display: none;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-nav__item {
+    position: relative;
+  }
+
+  .site-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding-inline: 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-ink);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .site-nav__link::-webkit-details-marker {
+    display: none;
+  }
+
+  .site-nav__link:hover,
+  .site-nav__link[aria-current='page'] {
+    text-decoration: underline;
+    text-underline-offset: 0.5em;
+  }
+
+  .site-nav__chevron {
+    width: 14px;
+    height: 14px;
+  }
+
+  .site-nav__dropdown[open] .site-nav__chevron {
+    transform: rotate(180deg);
+  }
+
+  .site-nav__submenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    margin: 0;
+    padding: 8px 0;
+    list-style: none;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+  }
+
+  .site-nav__sublink {
+    display: block;
+    padding: 10px 20px;
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+
+  .site-nav__sublink:hover,
+  .site-nav__sublink[aria-current='page'] {
+    text-decoration: underline;
+  }
+
+  .site-header__cart .icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .cart-count {
+    position: absolute;
+    top: 6px;
+    right: 3px;
+    display: grid;
+    place-items: center;
+    min-width: 17px;
+    height: 17px;
+    padding-inline: 4px;
+    border-radius: 999px;
+    background-color: var(--color-ink);
+    color: var(--color-background);
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .cart-count[hidden] {
+    display: none;
+  }
+
+  @media (min-width: 990px) {
+    .site-header__menu-toggle {
+      display: none;
+    }
+
+    .site-nav {
+      display: flex;
+    }
+
+    .site-header__logo-text {
+      font-size: 1.625rem;
+    }
+  }
+
+  /* Mobile menu panel */
+  .menu-drawer {
+    width: min(88vw, 400px);
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0 var(--page-margin) 32px;
+    border: 0;
+    border-inline-end: 1px solid var(--color-line);
+    inset-block: 0;
+    inset-inline-start: 0;
+    overflow-y: auto;
+    transition: transform 0.3s ease, overlay 0.3s ease allow-discrete, display 0.3s ease allow-discrete;
+    transform: translateX(-100%);
+  }
+
+  .menu-drawer[open] {
+    transform: none;
+  }
+
+  @starting-style {
+    .menu-drawer[open] {
+      transform: translateX(-100%);
+    }
+  }
+
+  .menu-drawer::backdrop {
+    background-color: var(--color-ink-overlay);
+  }
+
+  .menu-drawer__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    min-height: var(--header-height);
+    margin-inline-end: -10px;
+    border-bottom: 1px solid var(--color-line);
   }
-  header a {
-    position: relative;
-    text-decoration: none;
-    color: var(--color-foreground);
+
+  .menu-drawer__list {
+    margin: 0;
+    padding: 12px 0;
+    list-style: none;
   }
-  header a sup {
-    position: absolute;
-    left: 100%;
-    overflow: hidden;
-    max-width: var(--page-margin);
+
+  .menu-drawer__list > li {
+    border-bottom: 1px solid var(--color-line);
   }
-  header svg {
-    width: 2rem;
-  }
-  header .header__menu,
-  header .header__icons {
+
+  .menu-drawer__link {
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    min-height: 56px;
+    font-family: var(--font-heading--family);
+    font-size: 1.5rem;
+    font-weight: 300;
+    text-decoration: none;
+  }
+
+  .menu-drawer__sublist {
+    margin: 0;
+    padding: 0 0 12px 16px;
+    list-style: none;
+  }
+
+  .menu-drawer__sublink {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  .menu-drawer__link[aria-current='page'],
+  .menu-drawer__sublink[aria-current='page'] {
+    text-decoration: underline;
+  }
+
+  .menu-drawer__search {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    margin-top: 16px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
   }
 {% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:general.header",
+  "name": "Encabezado",
+  "tag": "div",
+  "class": "section-header",
   "settings": [
     {
       "type": "link_list",
       "id": "menu",
-      "label": "t:labels.menu"
+      "label": "Menú",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky",
+      "label": "Fijar el encabezado al desplazarse",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Logotipo"
+    },
+    {
+      "type": "text",
+      "id": "logo_text",
+      "label": "Logotipo en texto",
+      "default": "BALLŌ"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logotipo en imagen (opcional)",
+      "info": "Si subes una imagen, reemplaza el logotipo en texto."
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 60,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "label": "Ancho del logotipo en imagen",
+      "default": 120
     }
-  ]
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
 }
 {% endschema %}

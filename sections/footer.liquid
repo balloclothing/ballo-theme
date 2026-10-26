@@ -1,57 +1,373 @@
-<footer>
-  <div class="footer__copyright">
-    &copy;
-    {{ 'now' | date: '%Y' }}
-    {{ shop.name | link_to: routes.root_url }}, {{ powered_by_link }}
-  </div>
+{%- liquid
+  assign logo_text = section.settings.logo_text | default: shop.name
+  assign form_id = 'FooterNewsletter-' | append: section.id
+-%}
 
-  <div class="footer__links">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
-  </div>
+<footer class="site-footer site-footer--{{ section.settings.background }} full-width">
+  <div class="container">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <a class="site-footer__logo" href="{{ routes.root_url }}">{{ logo_text }}</a>
 
-  <div class="footer__payment">
-    {% if section.settings.show_payment_icons %}
-      {% for type in shop.enabled_payment_types %}
-        {{ type | payment_type_svg_tag }}
-      {% endfor %}
-    {% endif %}
+        {%- if section.settings.text != blank -%}
+          <div class="site-footer__text text-secondary rte">{{ section.settings.text }}</div>
+        {%- endif -%}
+
+        {%- if section.settings.show_newsletter -%}
+          <div class="site-footer__newsletter">
+            {%- if section.settings.newsletter_heading != blank -%}
+              <h2 class="site-footer__heading">{{ section.settings.newsletter_heading }}</h2>
+            {%- endif -%}
+
+            {%- form 'customer', id: form_id, class: 'newsletter-form' -%}
+              <input type="hidden" name="contact[tags]" value="newsletter">
+
+              <div class="newsletter-form__row">
+                <div class="field newsletter-form__field">
+                  <label class="field__label" for="{{ form_id }}-email">{{ 'newsletter.email_label' | t }}</label>
+                  <input
+                    class="field__input"
+                    id="{{ form_id }}-email"
+                    type="email"
+                    name="contact[email]"
+                    autocomplete="email"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    placeholder="{{ 'newsletter.email_placeholder' | t }}"
+                    required
+                    {% if form.errors %}
+                      aria-invalid="true" aria-describedby="{{ form_id }}-message"
+                    {% elsif form.posted_successfully? %}
+                      aria-describedby="{{ form_id }}-message"
+                    {% endif %}
+                  >
+                </div>
+                <button type="submit" class="button">{{ 'newsletter.submit' | t }}</button>
+              </div>
+
+              {%- if form.posted_successfully? -%}
+                <p class="form-message" id="{{ form_id }}-message" role="status">{{ 'newsletter.success' | t }}</p>
+              {%- elsif form.errors -%}
+                <p class="form-message form-message--error" id="{{ form_id }}-message" role="alert">
+                  {%- if form.errors.messages.email -%}
+                    {{ 'newsletter.error_email' | t }}
+                  {%- else -%}
+                    {{ form.errors | default_errors }}
+                  {%- endif -%}
+                </p>
+              {%- endif -%}
+            {%- endform -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="site-footer__columns">
+          {%- for block in section.blocks -%}
+            <nav class="site-footer__column" aria-label="{{ block.settings.heading | escape }}" {{ block.shopify_attributes }}>
+              {%- if block.settings.heading != blank -%}
+                <h2 class="site-footer__heading">{{ block.settings.heading }}</h2>
+              {%- endif -%}
+
+              {%- if block.settings.menu.links.size > 0 -%}
+                <ul class="site-footer__links" role="list">
+                  {%- for link in block.settings.menu.links -%}
+                    <li>
+                      <a
+                        href="{{ link.url }}"
+                        {% if link.type == 'http_link' and link.url contains '://' %}
+                          target="_blank" rel="noopener"
+                        {% endif %}
+                      >
+                        {{- link.title -}}
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- elsif request.design_mode -%}
+                <p class="site-footer__hint text-secondary">{{ 'footer.choose_menu' | t }}</p>
+              {%- endif -%}
+            </nav>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="site-footer__bottom">
+      <p class="site-footer__copyright">&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</p>
+
+      {%- liquid
+        assign has_policies = false
+        if shop.terms_of_service or shop.privacy_policy or shop.shipping_policy
+          assign has_policies = true
+        endif
+      -%}
+      {%- if has_policies -%}
+        <ul class="site-footer__legal" role="list">
+          {%- if shop.terms_of_service -%}
+            <li><a href="{{ shop.terms_of_service.url }}">{{ 'footer.terms' | t }}</a></li>
+          {%- endif -%}
+          {%- if shop.privacy_policy -%}
+            <li><a href="{{ shop.privacy_policy.url }}">{{ 'footer.privacy' | t }}</a></li>
+          {%- endif -%}
+          {%- if shop.shipping_policy -%}
+            <li><a href="{{ shop.shipping_policy.url }}">{{ 'footer.shipping_policy' | t }}</a></li>
+          {%- endif -%}
+        </ul>
+      {%- elsif request.design_mode -%}
+        <p class="site-footer__hint text-secondary">{{ 'footer.policies_hint' | t }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+        <ul class="site-footer__payment" role="list" aria-label="{{ 'footer.payment_methods' | t }}">
+          {%- for type in shop.enabled_payment_types -%}
+            <li>{{ type | payment_type_svg_tag }}</li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
   </div>
 </footer>
 
 {% stylesheet %}
-  footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
+  .site-footer {
+    margin-top: auto;
+    padding-block: clamp(48px, 7vw, 88px) 24px;
+    border-top: 1px solid var(--color-line);
   }
-  footer a {
+
+  .site-footer--surface {
+    background-color: var(--color-surface);
+  }
+
+  .site-footer--background {
+    background-color: var(--color-background);
+  }
+
+  .site-footer__top {
+    display: grid;
+    gap: 48px;
+  }
+
+  .site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 440px;
+  }
+
+  .site-footer__logo {
+    align-self: flex-start;
+    font-family: var(--font-heading--family);
+    font-size: 1.625rem;
+    line-height: 44px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
     text-decoration: none;
-    color: var(--color-foreground);
   }
-  footer .footer__links,
-  footer .footer__payment {
+
+  .site-footer__text {
+    font-size: 0.9375rem;
+  }
+
+  .site-footer__newsletter {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .site-footer__heading {
+    margin-bottom: 4px;
+    font-family: var(--font-body--family);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .newsletter-form__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .newsletter-form__field {
+    flex: 1 1 200px;
+  }
+
+  .newsletter-form .button {
+    flex: 0 0 auto;
+  }
+
+  .site-footer__columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 32px 24px;
+  }
+
+  .site-footer__links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__links a,
+  .site-footer__legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  .site-footer__links a {
+    font-size: 0.9375rem;
+  }
+
+  .site-footer__links a:hover,
+  .site-footer__legal a:hover {
+    text-decoration: underline;
+  }
+
+  .site-footer__hint {
+    font-size: 0.8125rem;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+    margin-top: clamp(40px, 6vw, 72px);
+    padding-top: 16px;
+    border-top: 1px solid var(--color-line);
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+  }
+
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__payment {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__payment svg {
+    width: 38px;
+    height: 24px;
+  }
+
+  @media (min-width: 990px) {
+    .site-footer__top {
+      grid-template-columns: minmax(320px, 5fr) 7fr;
+      gap: 64px;
+    }
   }
 {% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:general.footer",
+  "name": "Pie de página",
+  "tag": "div",
+  "class": "section-footer",
   "settings": [
     {
-      "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
+      "type": "select",
+      "id": "background",
+      "label": "Fondo",
+      "options": [
+        { "value": "surface", "label": "Superficie" },
+        { "value": "background", "label": "Fondo (Ivory)" }
+      ],
+      "default": "surface"
+    },
+    {
+      "type": "text",
+      "id": "logo_text",
+      "label": "Logotipo en texto",
+      "default": "BALLŌ"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Texto corto",
+      "default": "<p>Camisetas premium en algodón 100%. Marca colombiana: pocas prendas, pensadas para durar.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Boletín"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_newsletter",
+      "label": "Mostrar formulario de boletín",
+      "info": "Los correos se guardan como clientes con la etiqueta \"newsletter\" y aceptan marketing por correo. Puedes escribirles con Shopify Email.",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "newsletter_heading",
+      "label": "Título del boletín",
+      "default": "Recibe las novedades"
+    },
+    {
+      "type": "header",
+      "content": "Línea legal"
+    },
+    {
+      "type": "paragraph",
+      "content": "Los enlaces a Términos, Privacidad y Política de envíos aparecen solos cuando creas esas políticas en Configuración › Políticas."
     },
     {
       "type": "checkbox",
       "id": "show_payment_icons",
-      "label": "t:labels.show_payment_icons",
+      "label": "Mostrar íconos de medios de pago",
       "default": true
     }
-  ]
+  ],
+  "blocks": [
+    {
+      "type": "link_list",
+      "name": "Columna de enlaces",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título",
+          "default": "Tienda"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menú",
+          "info": "Crea los menús en Tienda online › Menús."
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "groups": ["footer"]
+  }
 }
 {% endschema %}

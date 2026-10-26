@@ -1,0 +1,42 @@
+{% doc %}
+  Renders an inline SVG icon drawn with a 1.5px stroke.
+
+  @param {string} name - Icon name: menu, close, search, bag, arrow-right, chevron-down, truck, exchange, lock
+  @param {string} [class] - Extra CSS classes
+
+  @example
+  {% render 'icon', name: 'search' %}
+{% enddoc %}
+<svg
+  class="icon icon--{{ name }} {{ class }}"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  {%- case name -%}
+    {%- when 'menu' -%}
+      <path d="M3.5 7h17M3.5 12h17M3.5 17h17"/>
+    {%- when 'close' -%}
+      <path d="M6 6l12 12M18 6L6 18"/>
+    {%- when 'search' -%}
+      <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20.5 20.5"/>
+    {%- when 'bag' -%}
+      <path d="M5 8.5h14l-1 12H6l-1-12z"/><path d="M8.75 8.5V7a3.25 3.25 0 016.5 0v1.5"/>
+    {%- when 'arrow-right' -%}
+      <path d="M4 12h15M14 7l5 5-5 5"/>
+    {%- when 'chevron-down' -%}
+      <path d="M6 9.5l6 6 6-6"/>
+    {%- when 'truck' -%}
+      <path d="M2.75 6.5h11v9.5h-11z"/><path d="M13.75 9.5h4l3.5 3.5v3h-7.5"/><circle cx="7" cy="17.75" r="1.75"/><circle cx="17.25" cy="17.75" r="1.75"/>
+    {%- when 'exchange' -%}
+      <path d="M4 9h14.5M15 5.5L18.5 9 15 12.5"/><path d="M20 15H5.5M9 11.5L5.5 15 9 18.5"/>
+    {%- when 'lock' -%}
+      <rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 017 0v3"/><path d="M12 14.5v2"/>
+  {%- endcase -%}
+</svg>

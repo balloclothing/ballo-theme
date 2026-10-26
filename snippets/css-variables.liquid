@@ -1,18 +1,59 @@
+{%- liquid
+  assign heading_font = settings.font_heading
+  assign heading_light = heading_font | font_modify: 'weight', '300'
+  assign heading_medium = heading_font | font_modify: 'weight', '500'
+  assign heading_italic = heading_font | font_modify: 'style', 'italic'
+
+  assign body_font = settings.font_body
+  assign body_medium = body_font | font_modify: 'weight', '500'
+  assign body_semibold = body_font | font_modify: 'weight', '600'
+-%}
+
 {% style %}
-  {% # Loads all font variantions with display: swap %}
-  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+  {% # Loads every font variation with display: swap %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {%- if heading_light %}{{ heading_light | font_face: font_display: 'swap' }}{% endif -%}
+  {%- if heading_medium %}{{ heading_medium | font_face: font_display: 'swap' }}{% endif -%}
+  {%- if heading_italic %}{{ heading_italic | font_face: font_display: 'swap' }}{% endif -%}
+  {{ body_font | font_face: font_display: 'swap' }}
+  {%- if body_medium %}{{ body_medium | font_face: font_display: 'swap' }}{% endif -%}
+  {%- if body_semibold %}{{ body_semibold | font_face: font_display: 'swap' }}{% endif -%}
 
   :root {
-    --font-primary--family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
-    --font-primary--style: {{ settings.type_primary_font.style }};
-    --font-primary--weight: {{ settings.type_primary_font.weight }};
-    --page-width: {{ settings.max_page_width }};
-    --page-margin: {{ settings.min_page_margin }}px;
-    --color-background: {{ settings.background_color }};
-    --color-foreground: {{ settings.foreground_color }};
-    --style-border-radius-inputs: {{ settings.input_corner_radius }}px;
+    /* Colors */
+    --color-background: {{ settings.color_background }};
+    --color-background-translucent: {{ settings.color_background | color_modify: 'alpha', 0.88 }};
+    --color-surface: {{ settings.color_surface }};
+    --color-card: {{ settings.color_card }};
+    --color-sand: {{ settings.color_sand }};
+    --color-ink: {{ settings.color_ink }};
+    --color-ink-overlay: {{ settings.color_ink | color_modify: 'alpha', 0.4 }};
+    --color-text-secondary: {{ settings.color_text_secondary }};
+    --color-accent: {{ settings.color_accent }};
+    --color-line: {{ settings.color_line }};
+    --color-border: {{ settings.color_border }};
+    --color-foreground: var(--color-ink);
+
+    /* Typography */
+    --font-heading--family: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --font-heading--style: {{ heading_font.style }};
+    --font-heading--weight: {{ heading_font.weight }};
+    --font-body--family: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --font-body--style: {{ body_font.style }};
+    --font-body--weight: {{ body_font.weight }};
+    --font-primary--family: var(--font-body--family);
+
+    /* Layout */
+    --page-width: {{ settings.page_width }}px;
+    --page-margin: clamp(16px, 4vw, 40px);
+    --radius: {{ settings.corner_radius }}px;
+    --style-border-radius-inputs: var(--radius);
+    --header-height: 64px;
+  }
+
+  @media (min-width: 990px) {
+    :root {
+      --header-height: 76px;
+    }
   }
 {% endstyle %}

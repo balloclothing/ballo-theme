@@ -9,14 +9,27 @@
  */
 {
   "type": "header",
-  "name": "t:general.header",
+  "name": "Encabezado",
   "sections": {
+    "announcement_bar": {
+      "type": "announcement-bar",
+      "settings": {
+        "text": "Envío gratis en Colombia desde [monto] · Cambios en 30 días",
+        "link": ""
+      }
+    },
     "header": {
       "type": "header",
-      "settings": {}
+      "settings": {
+        "menu": "main-menu",
+        "sticky": true,
+        "logo_text": "BALLŌ",
+        "logo_width": 120
+      }
     }
   },
   "order": [
+    "announcement_bar",
     "header"
-  ],
+  ]
 }

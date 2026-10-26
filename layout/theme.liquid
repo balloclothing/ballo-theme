@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}">
   <head>
+    {% # Preload the main font files so text renders in the brand fonts quickly %}
+    {{ settings.font_heading | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: true }}
+    {{ settings.font_body | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: true }}
+
     {% # Inlined CSS Variables %}
     {% render 'css-variables' %}
 
@@ -10,13 +14,19 @@
     {% # Social, title, etc. %}
     {% render 'meta-tags' %}
 
+    <script src="{{ 'theme.js' | asset_url }}" defer></script>
+
     {{ content_for_header }}
   </head>
 
   <body>
+    <a class="skip-link" href="#MainContent">{{ 'accessibility.skip_to_content' | t }}</a>
+
     {% sections 'header-group' %}
 
-    {{ content_for_layout }}
+    <main id="MainContent" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
 
     {% sections 'footer-group' %}
   </body>

@@ -6,11 +6,18 @@
   margin: 0;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-height) + 16px);
+}
+
 body {
   display: flex;
   flex-direction: column;
   margin: 0;
   min-height: 100svh;
+  overflow-x: clip;
 }
 
 html:has(dialog[scroll-lock][open], details[scroll-lock][open]) {
@@ -29,19 +36,26 @@ svg {
 
 input,
 textarea,
-select {
+select,
+button {
   font: inherit;
+  color: inherit;
+}
+
+input,
+textarea,
+select {
   border-radius: var(--style-border-radius-inputs);
 }
 
 select {
-  background-color: var(--color-background);
+  background-color: var(--color-card);
   color: currentcolor;
 }
 
 dialog {
   background-color: var(--color-background);
-  color: var(--color-foreground);
+  color: var(--color-ink);
 }
 
 p {
@@ -73,9 +87,266 @@ p:empty {
 
 /** Theme styles below */
 body {
-  font-family: var(--font-primary--family);
+  font-family: var(--font-body--family);
+  font-style: var(--font-body--style);
+  font-weight: var(--font-body--weight);
+  font-size: 1rem;
+  line-height: 1.6;
   background-color: var(--color-background);
-  color: var(--color-foreground);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/** Typography */
+h1,
+h2,
+h3,
+h4,
+.h1,
+.h2,
+.h3,
+.h4 {
+  font-family: var(--font-heading--family);
+  font-style: var(--font-heading--style);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h1,
+.h1 {
+  font-size: clamp(2.5rem, 1.6rem + 3.8vw, 4.75rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+h2,
+.h2 {
+  font-size: clamp(2rem, 1.45rem + 2.3vw, 3.25rem);
+  font-weight: 300;
+}
+
+h3,
+.h3 {
+  font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+}
+
+h4,
+.h4 {
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-body--family);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.rte > * + * {
+  margin-block-start: 1em;
+}
+
+/** Accessibility */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 12px 20px;
+  background: var(--color-ink);
+  color: var(--color-background);
+  border-radius: var(--radius);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+  outline-color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/** Layout */
+.container {
+  width: min(var(--page-width), 100% - var(--page-margin) * 2);
+  margin-inline: auto;
+}
+
+/** Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 48px;
+  padding: 0.75rem 1.75rem;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius);
+  background-color: var(--color-ink);
+  color: var(--color-background);
+  font-family: var(--font-body--family);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.button:hover {
+  background-color: color-mix(in srgb, var(--color-ink) 85%, var(--color-background));
+}
+
+.button--secondary {
+  background-color: transparent;
+  border-color: var(--color-border);
+  color: var(--color-ink);
+}
+
+.button--secondary:hover {
+  background-color: transparent;
+  border-color: var(--color-ink);
+}
+
+.button:disabled,
+.button[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.link-arrow:hover {
+  text-decoration: underline;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.icon {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+/** Forms */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.field__input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card);
+  color: var(--color-ink);
+}
+
+.field__input::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 1;
+}
+
+.field__input:focus-visible {
+  outline-offset: 0;
+  border-color: var(--color-ink);
+}
+
+.form-message {
+  font-size: 0.875rem;
+}
+
+.form-message--error {
+  color: #9b2c1f;
 }
 
 /** Section layout utilities */
@@ -92,10 +363,7 @@ body {
  * the entire viewport.
  */
 .shopify-section {
-  --content-width: min(
-    calc(var(--page-width) - var(--page-margin) * 2),
-    calc(100% - var(--page-margin) * 2)
-  );
+  --content-width: min(var(--page-width), calc(100% - var(--page-margin) * 2));
   --content-margin: minmax(var(--page-margin), 1fr);
   --content-grid: var(--content-margin) var(--content-width) var(--content-margin);
 

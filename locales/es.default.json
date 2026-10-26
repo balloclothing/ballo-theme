@@ -1,0 +1,81 @@
+{
+  "404": {
+    "title": "404",
+    "not_found": "No encontramos esta página.",
+    "back_to_shopping": "Volver a la tienda"
+  },
+  "accessibility": {
+    "skip_to_content": "Saltar al contenido"
+  },
+  "header": {
+    "menu": "Menú",
+    "open_menu": "Abrir menú",
+    "close_menu": "Cerrar menú",
+    "main_navigation": "Navegación principal",
+    "search": "Buscar",
+    "cart_count": {
+      "one": "Carrito, {{ count }} producto",
+      "other": "Carrito, {{ count }} productos"
+    }
+  },
+  "footer": {
+    "terms": "Términos",
+    "privacy": "Privacidad",
+    "shipping_policy": "Política de envíos",
+    "payment_methods": "Medios de pago",
+    "choose_menu": "Elige un menú para esta columna.",
+    "policies_hint": "Crea tus políticas en Configuración › Políticas para mostrar aquí los enlaces legales."
+  },
+  "newsletter": {
+    "email_label": "Correo electrónico",
+    "email_placeholder": "tu@correo.com",
+    "submit": "Suscribirme",
+    "success": "¡Gracias! Ya estás en la lista.",
+    "error_email": "Revisa tu correo electrónico: parece que no es válido o ya está registrado."
+  },
+  "blog": {
+    "article_comments": "Comentarios",
+    "article_metadata_html": "{{ date }} por {{ author }}",
+    "comment_form_body": "Comentario",
+    "comment_form_email": "Correo electrónico",
+    "comment_form_name": "Nombre",
+    "comment_form_submit": "Publicar",
+    "comment_form_title": "Deja un comentario"
+  },
+  "cart": {
+    "checkout": "Finalizar compra",
+    "title": "Carrito",
+    "update": "Actualizar",
+    "remove": "Eliminar"
+  },
+  "customers": {
+    "login": {
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "submit": "Ingresar",
+      "title": "Ingresar"
+    }
+  },
+  "collections": {
+    "title": "Colecciones"
+  },
+  "gift_card": {
+    "add_to_apple_wallet": "Agregar a Apple Wallet",
+    "card": "Tarjeta de regalo",
+    "expired": "Esta tarjeta de regalo está vencida",
+    "expires_on": "Vence el {{ expires_on }}",
+    "use_at_checkout": "Usa esta tarjeta de regalo al pagar"
+  },
+  "password": {
+    "title": "Esta tienda abrirá pronto",
+    "password": "Contraseña",
+    "enter": "Entrar"
+  },
+  "search": {
+    "title": "Buscar",
+    "placeholder": "Buscar camisetas, páginas o artículos",
+    "submit": "Buscar",
+    "no_results_html": "No encontramos resultados para {{ terms }}",
+    "results_for_html": "{{ count }} resultados para {{ terms }}"
+  }
+}

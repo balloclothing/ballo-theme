@@ -1,0 +1,83 @@
+{%- liquid
+  assign threshold = settings.free_shipping_threshold | default: 0 | times: 100 | money_without_trailing_zeros
+  assign message = section.settings.text | replace: '[monto]', threshold | replace: '[MONTO]', threshold
+-%}
+
+{%- if section.settings.text != blank -%}
+  <div class="announcement-bar full-width">
+    <p class="announcement-bar__text container">
+      {%- if section.settings.link != blank -%}
+        <a href="{{ section.settings.link }}">{{ message }}</a>
+      {%- else -%}
+        {{ message }}
+      {%- endif -%}
+    </p>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .announcement-bar {
+    background-color: var(--color-ink);
+    color: var(--color-background);
+  }
+
+  .announcement-bar__text {
+    padding-block: 10px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.12em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .announcement-bar a {
+    display: inline-block;
+    padding-block: 4px;
+    text-decoration: none;
+  }
+
+  .announcement-bar a:hover {
+    text-decoration: underline;
+  }
+
+  .announcement-bar :focus-visible {
+    outline-color: var(--color-background);
+  }
+
+  @media (min-width: 750px) {
+    .announcement-bar__text {
+      font-size: 0.75rem;
+      letter-spacing: 0.16em;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Barra de anuncios",
+  "class": "section-announcement-bar",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "Texto",
+      "info": "Escribe [monto] donde quieras mostrar el monto de envío gratis definido en Ajustes del tema › Envíos.",
+      "default": "Envío gratis en Colombia desde [monto] · Cambios en 30 días"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Enlace (opcional)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Barra de anuncios"
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}

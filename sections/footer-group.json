@@ -9,12 +9,44 @@
  */
 {
   "type": "footer",
-  "name": "t:general.footer",
+  "name": "Pie de página",
   "sections": {
     "footer": {
       "type": "footer",
+      "blocks": {
+        "tienda": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Tienda",
+            "menu": "tienda"
+          }
+        },
+        "ayuda": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Ayuda",
+            "menu": "ayuda"
+          }
+        },
+        "marca": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Marca",
+            "menu": "marca"
+          }
+        }
+      },
+      "block_order": [
+        "tienda",
+        "ayuda",
+        "marca"
+      ],
       "settings": {
-        "menu": "",
+        "background": "surface",
+        "logo_text": "BALLŌ",
+        "text": "<p>Camisetas premium en algodón 100%. Marca colombiana: pocas prendas, pensadas para durar.</p>",
+        "show_newsletter": true,
+        "newsletter_heading": "Recibe las novedades",
         "show_payment_icons": true
       }
     }
